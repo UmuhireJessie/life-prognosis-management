@@ -1,18 +1,19 @@
-# Life-prognosis-management
+# Life-Prognosis Management
 
-> This Life-Prognosis Management project allows you develop a command-line utility that allows patients to input their HIV-related health information to receive an estimated lifespan based on their condition. The utility will ensure the protection of user health data, while also providing functionality for administrators to export and aggregate data for statistical and decision-making purposes.
+> The Life-Prognosis Management project is a command-line utility that allows patients to input their HIV-related health information to receive an estimated lifespan based on their condition. The utility ensures the protection of user health data while providing functionality for administrators to export and aggregate data for statistical and decision-making purposes.
 
-- Accurate Lifespan Estimation for Patients:
-- Allow Patient input, edit and view details.
-- Aggregation of data by the Admin.
+## Features
 
+- **Accurate Lifespan Estimation for Patients**: Patients can receive an estimated lifespan based on their HIV-related health data.
+- **Patient Management**: Patients can input, edit, and view their health details securely.
+- **Data Aggregation for Admins**: Administrators can aggregate patient data for statistical analysis and decision-making.
 
 ## Built With
 
-- Java
-- Bash for file manipulation
+- **Java**: Core Java for application logic.
+- **Bash**: For file manipulation and data management.
 
-## Live Demo (if available)
+## Live Demo
 
 [Live Demo Link](https://livedemo.com)
 
@@ -22,20 +23,52 @@
 - To get a local copy up and running follow these simple example steps.
 - Clone the code to your machine, or download a ZIP of all the files directly.
 - To clone, run `git clone https://github.com/UmuhireJessie/life-prognosis-management.git`
-- cd into the project folder `cd life-prognosis`
+- cd into the project folder `cd life-prognosis-management`
 
 
 To get a local copy up and running follow these simple example steps.
 
 ### Prerequisites
-Use your preferred code editor such as VSCode or Atom
+
+- A code editor such as Visual Studio Code, Atom, or any other of your choice.
+- Java Development Kit (JDK) installed on your machine.
 
 ### Setup
 
-### Install
+**1. Clone the Repository:**
+   ```bash
+   git clone https://github.com/UmuhireJessie/life-prognosis-management.git
+   ```
 
+   Alternatively, you can download the project files as a ZIP and extract them.
+2. **Navigate to the Project Directory:**
+
+    `cd life-prognosis-management`
+
+### Installation
+Ensure that Java is installed on your system. You can verify this by running:
+
+```bash
+java -version
+```
 
 ### Usage
+
+**1. Compile the Project:**
+
+```bash
+javac -d bin $(find src -name "*.java")
+```
+
+This command compiles all Java files and places the compiled classes in the bin directory.
+
+**2. Run the Project:**
+
+```bash
+java -cp bin src.Main
+```
+
+This command runs the main class of the project, launching the application.
 
 ### Run tests
 
@@ -47,7 +80,7 @@ Use your preferred code editor such as VSCode or Atom
 
 👤 **Marlyn Mayienga**
 👤 **itsazzaosman**
-👤 **Jessie Umuhire**
+👤 **Jessie Umuhire Umutesi**
 
 
 
