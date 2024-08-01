@@ -5,12 +5,15 @@ public abstract class User {
     protected String lastName;
     protected String email;
     protected String password;
+    protected Role role;
 
-    public User(String firstName, String lastName, String email, String password) {
+    // Constructor
+    public User(String firstName, String lastName, String email, String password, Role role) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
         this.password = password;
+        this.role = role;
     }
 
     // Getters and setters
@@ -28,5 +31,18 @@ public abstract class User {
 
     public String getPassword() {
         return password;
+    }
+
+    public Role getRole() {
+        return role;
+    }
+
+    public void setRole(Role role) {
+        this.role = role;
+    }
+
+    // Convert user data to a CSV-like format
+    public String toCSV() {
+        return String.join(",", firstName, lastName, email, password, role.toString());
     }
 }

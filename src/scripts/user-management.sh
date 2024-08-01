@@ -1,12 +1,12 @@
 #!/bin/bash
 
 USER_STORE="user-store.txt"
+TMP_STORE="tmp_user_store.txt"
 
 # Function to create user-store.txt if it doesn't exist
 create_user_store() {
     if [ ! -f "$USER_STORE" ]; then
         touch "$USER_STORE"
-        # Add initial admin user
         echo "admin@example.com,$(uuidgen),$(echo -n "admin123" | openssl dgst -sha256 -binary | base64),Admin" >> "$USER_STORE"
         echo "user-store.txt created with initial admin user."
     else
@@ -18,8 +18,8 @@ create_user_store() {
 initiate_registration() {
     local email=$1
     local uuid=$(uuidgen)
-    echo "$email,$uuid" >> "$USER_STORE"
-    echo "$uuid"
+    echo "$email,$uuid,,Patient" >> "$USER_STORE"
+    echo "Initiated registration for $email with UUID: $uuid"
 }
 
 # Function to complete registration
@@ -36,10 +36,18 @@ complete_registration() {
     local country_code=${10}
 
     local hashed_password=$(echo -n "$password" | openssl dgst -sha256 -binary | base64)
-    
-    # Update the user entry in user-store.txt
-    sed -i "s/^.*$uuid.*$/$uuid,$first_name,$last_name,$hashed_password,$dob,$has_hiv,$diagnosis_date,$on_art,$art_start_date,$country_code,Patient/" "$USER_STORE"
-    
+
+    # Ensure atomic update by using a temporary file
+    while IFS=, read -r email user_uuid stored_password role; do
+        if [[ "$user_uuid" == "$uuid" ]]; then
+            echo "$email,$uuid,$hashed_password,Patient,$first_name,$last_name,$dob,$has_hiv,$diagnosis_date,$on_art,$art_start_date,$country_code" >> "$TMP_STORE"
+        else
+            echo "$email,$user_uuid,$stored_password,$role" >> "$TMP_STORE"
+        fi
+    done < "$USER_STORE"
+
+    mv "$TMP_STORE" "$USER_STORE"
+
     echo "Registration completed for UUID: $uuid"
 }
 
@@ -48,9 +56,16 @@ check_login() {
     local email=$1
     local password=$2
     local hashed_password=$(echo -n "$password" | openssl dgst -sha256 -binary | base64)
-    
-    grep -q "^$email,.*$hashed_password" "$USER_STORE"
-    return $?
+
+    while IFS=, read -r stored_email uuid stored_password role; do
+        if [[ "$stored_email" == "$email" && "$stored_password" == "$hashed_password" ]]; then
+            echo "Login successful for $email with role $role"
+            return 0
+        fi
+    done < "$USER_STORE"
+
+    echo "Login failed for $email"
+    return 1
 }
 
 # Main script execution

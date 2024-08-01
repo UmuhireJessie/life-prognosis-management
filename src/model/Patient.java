@@ -14,7 +14,7 @@ public class Patient extends User {
     public Patient(String firstName, String lastName, String email, String password,
                    String dateOfBirth, boolean hasHIV, String diagnosisDate,
                    boolean onART, String artStartDate, String countryISOCode) {
-        super(firstName, lastName, email, password);
+        super(firstName, lastName, email, password, Role.PATIENT);
         this.dateOfBirth = LocalDate.parse(dateOfBirth);
         this.hasHIV = hasHIV;
         this.diagnosisDate = LocalDate.parse(diagnosisDate);
@@ -25,22 +25,20 @@ public class Patient extends User {
 
     public double computeSurvivalRate() {
         if (!hasHIV) {
-            return Double.MAX_VALUE; // No impact on lifespan if not HIV positive
+            return Double.MAX_VALUE;
         }
 
         int averageLifespan = getAverageLifespanByCountry(countryISOCode);
-
         long ageAtDiagnosis = ChronoUnit.YEARS.between(dateOfBirth, diagnosisDate);
         long yearsSinceDiagnosis = ChronoUnit.YEARS.between(diagnosisDate, LocalDate.now());
 
         if (!onART) {
-            return ageAtDiagnosis + 5; // Survival rate without ART is 5 years post-diagnosis
+            return ageAtDiagnosis + 5;
         }
 
-        long yearsOnART = ChronoUnit.YEARS.between(artStartDate, LocalDate.now());
+        // long yearsOnART = ChronoUnit.YEARS.between(artStartDate, LocalDate.now());
         double remainingLifespan = (averageLifespan - ageAtDiagnosis) * 0.9;
 
-        // Apply reduction for delay in starting ART
         for (int i = 1; i <= yearsSinceDiagnosis; i++) {
             if (i > 1) {
                 remainingLifespan *= 0.9;
@@ -50,15 +48,11 @@ public class Patient extends User {
         return ageAtDiagnosis + remainingLifespan;
     }
 
-    // Method to fetch average lifespan by country (placeholder)
     private int getAverageLifespanByCountry(String countryISOCode) {
-        // Placeholder implementation
-        // Replace with actual logic to fetch from data source or configuration
-        // For simplicity, returning hardcoded values based on example
         if ("RW".equals(countryISOCode)) {
-            return 70; // Example for Rwanda
+            return 70;
         } else {
-            return 75; // Example for other countries
+            return 75;
         }
     }
 

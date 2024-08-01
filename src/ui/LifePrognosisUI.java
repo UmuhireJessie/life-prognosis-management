@@ -2,7 +2,6 @@ package src.ui;
 
 import src.model.Patient;
 
-import java.time.LocalDate;
 import java.util.Scanner;
 
 public class LifePrognosisUI {
@@ -13,7 +12,6 @@ public class LifePrognosisUI {
         System.out.println("Welcome to Life Prognosis Management");
         System.out.println("Please enter patient details:");
 
-        // Example patient input (you can modify as needed)
         System.out.print("First Name: ");
         String firstName = scanner.nextLine().trim();
 

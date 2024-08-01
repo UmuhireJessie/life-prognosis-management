@@ -3,8 +3,8 @@ package src.model;
 public class Admin extends User {
 
     public Admin(String firstName, String lastName, String email, String password) {
-        super(firstName, lastName, email, password);
+        super(firstName, lastName, email, password, Role.ADMIN);
     }
 
-    // Admin-specific methods can be added here
+    // Admin-specific methods for data aggregation
 }

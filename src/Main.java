@@ -1,26 +1,27 @@
 package src;
 
-import src.model.Admin;
-import src.model.Patient;
 import src.ui.LifePrognosisUI;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 
 public class Main {
 
     public static void main(String[] args) {
-        /*
-            // Example usage of Admin and Patient classes
-            Admin admin = new Admin("John", "Doe", "admin@example.com", "admin@123");
-            System.out.println("Admin: " + admin.getFirstName() + " " + admin.getLastName());
+        // Example to call Bash script for login
+        try {
+            ProcessBuilder pb = new ProcessBuilder("./user-management.sh", "check_login", "jane@example.com", "password123");
+            Process process = pb.start();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            String line;
+            while ((line = reader.readLine()) != null) {
+                System.out.println(line);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
-            Patient patient = new Patient("Jane", "Smith", "jane@example.com", "jane@123",
-                    "1990-01-01", true, "2010-01-01", true, "2010-01-15", "RW");
-            System.out.println("Patient: " + patient.getFirstName() + " " + patient.getLastName());
-
-            double survivalRate = patient.computeSurvivalRate();
-            System.out.println("Survival Rate: " + survivalRate);
-        */ 
-
-        // Calling the UI class
+        // Call the UI
         LifePrognosisUI.main(args);
     }
 }
