@@ -16,6 +16,9 @@ public abstract class User {
         this.role = role;
     }
 
+    // Display user details
+    public abstract void displayOptions();
+
     // Getters and setters
     public String getFirstName() {
         return firstName;

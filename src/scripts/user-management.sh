@@ -1,7 +1,14 @@
 #!/bin/bash
 
-USER_STORE="user-store.txt"
-TMP_STORE="tmp_user_store.txt"
+USER_STORE="./src/data/user-store.txt"
+TMP_STORE="./src/data/tmp_user_store.txt"
+LIFE_EXPECTANCY_STORE="./src/data/life-expectancy.csv"
+
+# Function to retrieve average lifespan by country
+get_lifespan_by_country() {
+    local country_code=$1
+    awk -F, -v code="$country_code" '$4 == code {print $7}' $LIFE_EXPECTANCY_STORE
+}
 
 # Function to create user-store.txt if it doesn't exist
 create_user_store() {
@@ -18,7 +25,7 @@ create_user_store() {
 initiate_registration() {
     local email=$1
     local uuid=$(uuidgen)
-    echo "$email,$uuid,,Patient" >> "$USER_STORE"
+    echo "$email,$uuid,,Admin" >> "$USER_STORE"
     echo "Initiated registration for $email with UUID: $uuid"
 }
 
@@ -59,7 +66,7 @@ check_login() {
 
     while IFS=, read -r stored_email uuid stored_password role; do
         if [[ "$stored_email" == "$email" && "$stored_password" == "$hashed_password" ]]; then
-            echo "Login successful for $email with role $role"
+            echo "Login successful,$email,$uuid,$role"
             return 0
         fi
     done < "$USER_STORE"
@@ -77,7 +84,10 @@ case "$1" in
         initiate_registration "$2"
         ;;
     complete_registration)
-        complete_registration "$2" "$3" "$4" "$5" "$6" "$7" "$8" "$9" "${10}" "${11}"
+        complete_registration "$2" "$3" "$4" "$5" "$6" "$7" "$8" "$9" "${10}"
+        ;;
+    get_lifespan)
+        get_lifespan_by_country "$2"
         ;;
     check_login)
         check_login "$2" "$3"

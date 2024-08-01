@@ -54,7 +54,14 @@ java -version
 
 ### Usage
 
-**1. Compile the Project:**
+**1. Setup and Initialization**
+```bash
+./src/scripts/user-management.sh create_store
+```
+
+This command initiates an admin with credentials set in `user-management.sh` file.
+
+**2. Compile the Project:**
 
 ```bash
 javac -d bin $(find src -name "*.java")
@@ -62,7 +69,7 @@ javac -d bin $(find src -name "*.java")
 
 This command compiles all Java files and places the compiled classes in the bin directory.
 
-**2. Run the Project:**
+**3. Run the Project:**
 
 ```bash
 java -cp bin src.Main

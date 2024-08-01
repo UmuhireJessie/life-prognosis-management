@@ -7,4 +7,12 @@ public class Admin extends User {
     }
 
     // Admin-specific methods for data aggregation
+    @Override
+    public void displayOptions() {
+        System.out.println("Admin Options:");
+        System.out.println("1. View All Users");
+        System.out.println("2. Aggregate Data");
+        System.out.println("3. Download All Users Info");
+        System.out.println("4. Export Analytics");
+    }
 }

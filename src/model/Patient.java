@@ -2,14 +2,33 @@ package src.model;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Patient extends User {
     private LocalDate dateOfBirth;
     private boolean hasHIV;
-    private LocalDate diagnosisDate;
+    private LocalDate diagnosisDate; // Nullable
     private boolean onART;
-    private LocalDate artStartDate;
+    private LocalDate artStartDate; // Nullable
     private String countryISOCode;
+
+    private static Map<String, Double> lifeExpectancyMap = new HashMap<>();
+
+    static {
+        // Load the data from the environment variable
+        String lifeExpectancyData = System.getenv("LIFE_EXPECTANCY_DATA");
+        if (lifeExpectancyData != null) {
+            for (String entry : lifeExpectancyData.split(",")) {
+                String[] keyValue = entry.split(":");
+                if (keyValue.length == 2) {
+                    lifeExpectancyMap.put(keyValue[0], Double.parseDouble(keyValue[1]));
+                }
+            }
+        } else {
+            System.out.println("No life expectancy data available.");
+        }
+    }
 
     public Patient(String firstName, String lastName, String email, String password,
                    String dateOfBirth, boolean hasHIV, String diagnosisDate,
@@ -17,18 +36,26 @@ public class Patient extends User {
         super(firstName, lastName, email, password, Role.PATIENT);
         this.dateOfBirth = LocalDate.parse(dateOfBirth);
         this.hasHIV = hasHIV;
-        this.diagnosisDate = LocalDate.parse(diagnosisDate);
+        this.diagnosisDate = diagnosisDate.isEmpty() ? null : LocalDate.parse(diagnosisDate);
         this.onART = onART;
-        this.artStartDate = LocalDate.parse(artStartDate);
+        this.artStartDate = artStartDate.isEmpty() ? null : LocalDate.parse(artStartDate);
         this.countryISOCode = countryISOCode;
+    }
+
+    @Override
+    public void displayOptions() {
+        System.out.println("Patient Options:");
+        System.out.println("1. View Profile");
+        System.out.println("2. Update Profile");
+        System.out.println("3. Download Your Info");
     }
 
     public double computeSurvivalRate() {
         if (!hasHIV) {
-            return Double.MAX_VALUE;
+            return getAverageLifespanByCountry(countryISOCode);
         }
 
-        int averageLifespan = getAverageLifespanByCountry(countryISOCode);
+        double averageLifespan = getAverageLifespanByCountry(countryISOCode);
         long ageAtDiagnosis = ChronoUnit.YEARS.between(dateOfBirth, diagnosisDate);
         long yearsSinceDiagnosis = ChronoUnit.YEARS.between(diagnosisDate, LocalDate.now());
 
@@ -36,9 +63,7 @@ public class Patient extends User {
             return ageAtDiagnosis + 5;
         }
 
-        // long yearsOnART = ChronoUnit.YEARS.between(artStartDate, LocalDate.now());
         double remainingLifespan = (averageLifespan - ageAtDiagnosis) * 0.9;
-
         for (int i = 1; i <= yearsSinceDiagnosis; i++) {
             if (i > 1) {
                 remainingLifespan *= 0.9;
@@ -48,12 +73,8 @@ public class Patient extends User {
         return ageAtDiagnosis + remainingLifespan;
     }
 
-    private int getAverageLifespanByCountry(String countryISOCode) {
-        if ("RW".equals(countryISOCode)) {
-            return 70;
-        } else {
-            return 75;
-        }
+    public static double getAverageLifespanByCountry(String countryISOCode) {
+        return lifeExpectancyMap.getOrDefault(countryISOCode, 75.0);
     }
 
     @Override
