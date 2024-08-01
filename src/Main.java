@@ -4,7 +4,8 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.Scanner;
 import src.ui.LifePrognosisUI;
-
+import src.model.Patient;
+import src.model.Admin;
 
 public class Main {
 
@@ -27,15 +28,19 @@ public class Main {
             if (role != null) {
                 System.out.println("Login successful.");
                 if ("Admin".equals(role)) {
-                    displayAdminOptions();
+                    Admin admin = new Admin("FirstName", "LastName", email, password); // Example details
+                    admin.displayOptions();
                 } else if ("Patient".equals(role)) {
-                    LifePrognosisUI.main(args); // Direct to patient registration or options
+                    // Using a dummy patient data so instanciating the class
+                    Patient patient = new Patient("FirstName", "LastName", email, password, 
+                            "1990-01-01", false, "", false, "", "US");
+                    patient.displayOptions();
                 }
             } else {
                 System.out.println("Login failed. Please check your credentials.");
             }
         } else if (choice == 2) {
-            System.out.println("Registration functionality is not implemented yet.");
+            LifePrognosisUI.main(args); // Direct to patient registration or options
         } else {
             System.out.println("Invalid choice. Exiting.");
         }
@@ -43,6 +48,7 @@ public class Main {
         scanner.close();
     }
 
+    // Funstion to check login before accessing anything on the system
     private static String checkLogin(String email, String password) {
         String role = null;
         try {
@@ -61,14 +67,5 @@ public class Main {
             e.printStackTrace();
         }
         return role;
-    }
-
-    private static void displayAdminOptions() {
-        System.out.println("Admin Options:");
-        System.out.println("1. View All Users");
-        System.out.println("2. Aggregate Data");
-        System.out.println("3. Download All Users Info");
-        System.out.println("4. Export Analytics");
-        // Handle admin-specific actions here
     }
 }
