@@ -59,7 +59,8 @@ java -version
 ./src/scripts/user-management.sh create_store
 ```
 
-This command initiates an admin with credentials set in `user-management.sh` file.
+This command initiates an admin with credentials set in `user-management.sh` file which are Email: admin@example.com and Password: admin123.
+Note that in the future these will be set as environment variables.
 
 **2. Compile the Project:**
 

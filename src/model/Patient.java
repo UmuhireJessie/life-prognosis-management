@@ -42,6 +42,7 @@ public class Patient extends User {
         this.countryISOCode = countryISOCode;
     }
 
+    // Options that are only available to patients
     @Override
     public void displayOptions() {
         System.out.println("Patient Options:");
