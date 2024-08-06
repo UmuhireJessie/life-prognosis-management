@@ -1,11 +1,9 @@
 package src.ui;
 
+import java.util.Scanner;
+import src.Main;
 import src.model.Patient;
 import src.utils.Helper;
-
-import java.util.Scanner;
-import java.util.regex.Pattern;
-import java.time.LocalDate;
 
 public class LifePrognosisUI {
 
@@ -14,6 +12,9 @@ public class LifePrognosisUI {
 
         System.out.println("Welcome to Life Prognosis Management");
         System.out.println("Please enter patient details:");
+        
+        System.out.print("UUID: ");
+        String uuid = scanner.nextLine().trim();
 
         System.out.print("First Name: ");
         String firstName = scanner.nextLine().trim();
@@ -74,7 +75,11 @@ public class LifePrognosisUI {
 
         System.out.print("Country ISO Code: ");
         String countryISOCode = scanner.nextLine().trim();
-
+        String[] args1 = {uuid, firstName, lastName, password,
+            dateOfBirthStr, String.valueOf(hasHIV), diagnosisDateStr,
+            String.valueOf(onART), artStartDateStr, countryISOCode};
+        String result = Main.callBashFunction("complete_registration", args1);
+        System.out.println(result);
         // Create Patient object
         Patient patient = new Patient(firstName, lastName, email, password,
                 dateOfBirthStr, hasHIV, diagnosisDateStr,
