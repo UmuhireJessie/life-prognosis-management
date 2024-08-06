@@ -25,7 +25,7 @@ create_user_store() {
 initiate_registration() {
     local email=$1
     local uuid=$(uuidgen)
-    echo "$email,$uuid,,Admin" >> "$USER_STORE"
+    echo "$email,$uuid,,Patient" >> "$USER_STORE"
     echo "Initiated registration for $email with UUID: $uuid"
 }
 
@@ -75,6 +75,33 @@ check_login() {
     return 1
 }
 
+# Function to get patient data
+get_patient() {
+    local email=$1
+    grep "^$email," "$USER_STORE" | cut -d',' -f5-
+}
+
+# Function to view all users
+view_all_users() {
+    cat "$USER_STORE"
+}
+
+# Function to aggregate data
+aggregate_data() {
+    echo "Data aggregation functionality to be implemented"
+}
+
+# Function to download all users info
+download_all_users() {
+    cp "$USER_STORE" "./all_users_info.csv"
+    echo "All users' information has been downloaded to all_users_info.csv"
+}
+
+# Function to export analytics
+export_analytics() {
+    echo "Analytics export functionality to be implemented"
+}
+
 # Main script execution
 case "$1" in
     create_store)
@@ -84,7 +111,7 @@ case "$1" in
         initiate_registration "$2"
         ;;
     complete_registration)
-        complete_registration "$2" "$3" "$4" "$5" "$6" "$7" "$8" "$9" "${10}"
+        complete_registration "$2" "$3" "$4" "$5" "$6" "$7" "$8" "$9" "${10}" "${11}"
         ;;
     get_lifespan)
         get_lifespan_by_country "$2"
@@ -92,8 +119,23 @@ case "$1" in
     check_login)
         check_login "$2" "$3"
         ;;
+    get_patient)
+        get_patient "$2"
+        ;;
+    view_all_users)
+        view_all_users
+        ;;
+    aggregate_data)
+        aggregate_data
+        ;;
+    download_all_users)
+        download_all_users
+        ;;
+    export_analytics)
+        export_analytics
+        ;;
     *)
-        echo "Usage: $0 {create_store|initiate_registration|complete_registration|check_login}"
+        echo "Usage: $0 {create_store|initiate_registration|complete_registration|check_login|get_patient|view_all_users|aggregate_data|download_all_users|export_analytics}"
         exit 1
         ;;
 esac

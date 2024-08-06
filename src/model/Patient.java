@@ -1,9 +1,12 @@
 package src.model;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Scanner;
 
 public class Patient extends User {
     private LocalDate dateOfBirth;
@@ -42,13 +45,92 @@ public class Patient extends User {
         this.countryISOCode = countryISOCode;
     }
 
-    // Options that are only available to patients
     @Override
     public void displayOptions() {
         System.out.println("Patient Options:");
         System.out.println("1. View Profile");
         System.out.println("2. Update Profile");
         System.out.println("3. Download Your Info");
+        System.out.println("4. Logout");
+    }
+
+    public void viewProfile() {
+        System.out.println(this.toString());
+        System.out.println("Estimated Survival Rate: " + this.computeSurvivalRate() + " years");
+    }
+
+    public void updateProfile(Scanner scanner) {
+        System.out.println("Updating profile. Press Enter to keep current values.");
+        
+        System.out.print("First Name [" + this.firstName + "]: ");
+        String input = scanner.nextLine().trim();
+        if (!input.isEmpty()) this.firstName = input;
+
+        System.out.print("Last Name [" + this.lastName + "]: ");
+        input = scanner.nextLine().trim();
+        if (!input.isEmpty()) this.lastName = input;
+
+        System.out.print("Date of Birth [" + this.dateOfBirth + "]: ");
+        input = scanner.nextLine().trim();
+        if (!input.isEmpty()) this.dateOfBirth = LocalDate.parse(input);
+
+        System.out.print("Has HIV [" + this.hasHIV + "]: ");
+        input = scanner.nextLine().trim();
+        if (!input.isEmpty()) this.hasHIV = Boolean.parseBoolean(input);
+
+        if (this.hasHIV) {
+            System.out.print("Diagnosis Date [" + this.diagnosisDate + "]: ");
+            input = scanner.nextLine().trim();
+            if (!input.isEmpty()) this.diagnosisDate = LocalDate.parse(input);
+
+            System.out.print("On ART [" + this.onART + "]: ");
+            input = scanner.nextLine().trim();
+            if (!input.isEmpty()) this.onART = Boolean.parseBoolean(input);
+
+            if (this.onART) {
+                System.out.print("ART Start Date [" + this.artStartDate + "]: ");
+                input = scanner.nextLine().trim();
+                if (!input.isEmpty()) this.artStartDate = LocalDate.parse(input);
+            }
+        }
+
+        System.out.print("Country ISO Code [" + this.countryISOCode + "]: ");
+        input = scanner.nextLine().trim();
+        if (!input.isEmpty()) this.countryISOCode = input;
+
+        updateUserStore(this);
+    }
+
+    public void downloadInfo() {
+        try {
+            ProcessBuilder pb = new ProcessBuilder("./src/scripts/user-management.sh", "download_patient_info", this.email);
+            Process process = pb.start();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            String line;
+            while ((line = reader.readLine()) != null) {
+                System.out.println(line);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void updateUserStore(Patient patient) {
+        try {
+            ProcessBuilder pb = new ProcessBuilder("./src/scripts/user-management.sh", "update_patient", 
+                patient.email, patient.firstName, patient.lastName, patient.dateOfBirth.toString(),
+                String.valueOf(patient.hasHIV), patient.diagnosisDate != null ? patient.diagnosisDate.toString() : "",
+                String.valueOf(patient.onART), patient.artStartDate != null ? patient.artStartDate.toString() : "",
+                patient.countryISOCode);
+            Process process = pb.start();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            String line;
+            while ((line = reader.readLine()) != null) {
+                System.out.println(line);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public double computeSurvivalRate() {
