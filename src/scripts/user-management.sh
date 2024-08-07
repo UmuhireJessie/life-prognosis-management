@@ -246,14 +246,11 @@ case "$1" in
     download_all_users)
         download_all_users
         ;;
-    seed_user_store)
-        seed_user_store
-        ;;
     export_analytics)
         export_analytics
         ;;
     *)
-        echo "Usage: $0 {create_store|initiate_registration|complete_registration|get_lifespan|check_login|get_patient|view_all_users|aggregate_data|download_all_users|seed_user_store|export_analytics}"
+        echo "Usage: $0 {create_store|initiate_registration|complete_registration|get_lifespan|check_login|get_patient|view_all_users|aggregate_data|download_all_users|export_analytics}"
         exit 1
         ;;
 esac
