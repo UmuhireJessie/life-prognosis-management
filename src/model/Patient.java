@@ -4,6 +4,10 @@ import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Scanner;
+
+import src.Main;
+import src.ui.LifePrognosisUI;
 
 public class Patient extends User {
     private LocalDate dateOfBirth;
@@ -31,8 +35,8 @@ public class Patient extends User {
     }
 
     public Patient(String firstName, String lastName, String email, String password,
-                   String dateOfBirth, boolean hasHIV, String diagnosisDate,
-                   boolean onART, String artStartDate, String countryISOCode) {
+            String dateOfBirth, boolean hasHIV, String diagnosisDate,
+            boolean onART, String artStartDate, String countryISOCode) {
         super(firstName, lastName, email, password, Role.PATIENT);
         this.dateOfBirth = LocalDate.parse(dateOfBirth);
         this.hasHIV = hasHIV;
@@ -45,11 +49,68 @@ public class Patient extends User {
     // Options that are only available to patients
     @Override
     public void displayOptions() {
+        Scanner scanner = new Scanner(System.in);
+
         System.out.println("Patient Options:");
-        System.out.println("1. View Profile");
-        System.out.println("2. Update Profile");
-        System.out.println("3. Download Your Info");
+        System.out.println("1. Complete Registration");
+        System.out.println("2. View Profile");
+        System.out.println("3. Update Profile");
+        System.out.println("4. Download Your Info");
+        System.out.println("5. Get Life Prognosis");
+        System.out.println("6. Logout");
+
+        // if (password == null) {
+        // System.out.println("1. Complete Registration");
+        // System.out.println("2. View Profile");
+        // System.out.println("3. Update Profile");
+        // System.out.println("4. Download Your Info");
+        // System.out.println("5. Get Life Prognosis");
+        // System.out.println("6. Logout");
+        // } else {
+        // System.out.println("1. View Profile");
+        // System.out.println("2. Update Profile");
+        // System.out.println("3. Download Your Info");
+        // System.out.println("4. Get Life Prognosis");
+        // System.out.println("5. Logout");
+        // }
+
+        System.out.print("Choose an option: ");
+        int choice = scanner.nextInt();
+        scanner.nextLine(); // Consume newline
+
+        switch (choice) {
+            case 1:
+                completeRegistration(scanner);
+                break;
+            case 2:
+                viewPatientProfile(scanner);
+                break;
+            case 6:
+                System.out.println("Logging out...");
+                break;
+            default:
+                System.out.println("Invalid option.");
+        }
     }
+
+    private void completeRegistration(Scanner scanner) {
+        LifePrognosisUI.main(null);
+    }
+
+    private void viewPatientProfile(Scanner scanner) {
+        try {
+            // Call bash script to view patient profile
+            String result = Main.callBashFunction("get_patient", email);
+            System.out.println("THis shoulf be the result: " + result);
+
+            displayOptions();
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    
 
     public double computeSurvivalRate() {
         if (!hasHIV) {

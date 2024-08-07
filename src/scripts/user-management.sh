@@ -14,7 +14,7 @@ get_lifespan_by_country() {
 create_user_store() {
     if [ ! -f "$USER_STORE" ]; then
         touch "$USER_STORE"
-        echo "admin@example.com,$(uuidgen),$(echo -n "admin123" | openssl dgst -sha256 -binary | base64),Admin" >> "$USER_STORE"
+        echo "admin@example.com,$(uuidgen),$(echo -n 'admin123' | openssl dgst -sha256 -binary | base64),Admin" >> "$USER_STORE"
         echo "user-store.txt created with initial admin user."
     else
         echo "user-store.txt already exists."
@@ -58,20 +58,107 @@ complete_registration() {
     echo "Registration completed for UUID: $uuid"
 }
 
+
+# Function to view all users
+view_all_users() {
+    cat "$USER_STORE"
+}
+
+# Function to download all users info
+download_all_users() {
+    cp "$USER_STORE" "./all_users_info.csv"
+    echo "All users' information has been downloaded to all_users_info.csv"
+}
+
+# Function to get patient data
+# get_patient() {
+#     local email=$1
+#     grep "^$email," "$USER_STORE" | cut -d',' -f5-
+# }
+
+# Function to get patient data
+get_patient() {
+    local email=$1
+
+    # Check if the file exists
+    if [[ ! -f "$USER_STORE" ]]; then
+        echo "Error: User store file not found."
+        return
+    fi
+
+    # Get the patient data
+    local patient_data=$(grep "^$email," "$USER_STORE" | cut -d',' -f5-)
+
+    if [[ -z "$patient_data" ]]; then
+        echo "Error: Patient data not found."
+    else
+        echo "$patient_data"
+    fi
+}
+
+
+# Function to register a new patient
+register_patient() {
+    local email=$1
+    local uuid=$(uuidgen)
+    local role="Patient"
+
+    # Append the new patient record to the user-store.txt
+    echo "$email,$uuid,,${role}" >> "$USER_STORE"
+    echo "Registered new patient with Email: $email and UUID: $uuid"
+}
+
 # Function to check login credentials
 check_login() {
     local email=$1
     local password=$2
     local hashed_password=$(echo -n "$password" | openssl dgst -sha256 -binary | base64)
 
-    while IFS=, read -r stored_email uuid stored_password role; do
-        if [[ "$stored_email" == "$email" && "$stored_password" == "$hashed_password" ]]; then
-            echo "Login successful,$email,$uuid,$role"
-            return 0
+    while IFS=, read -r stored_email uuid stored_password role first_name last_name dob has_hiv diagnosis_date on_art art_start_date country_code; do
+        if [[ "$stored_email" == "$email" ]]; then
+            if [[ "$role" == "Admin" ]]; then
+                if [[ -z "$password" ]]; then
+                    echo "Password required for Admin login"
+                    return 1
+                elif [[ "$stored_password" == "$hashed_password" ]]; then
+                    echo "Login successful,$email,$uuid,$role"
+                    return 0
+                else
+                    echo "Login failed for $email"
+                    return 1
+                fi
+            elif [[ "$role" == "Patient" ]]; then
+                if [[ -z "$stored_password" ]]; then
+                    echo "Registration incomplete,$email,$uuid"
+                    return 1
+                elif [[ "$stored_password" == "$hashed_password" ]]; then
+                    echo "Login successful,$email,$uuid,$role"
+                    return 0
+                else
+                    echo "Login failed for $email"
+                    return 1
+                fi
+            fi
         fi
     done < "$USER_STORE"
 
     echo "Login failed for $email"
+    return 1
+}
+
+# Function to check pre-registration
+check_pre_registration() {
+    local email=$1
+    local uuid=$2
+
+    while IFS=, read -r stored_email stored_uuid stored_password role; do
+        if [[ "$stored_email" == "$email" && "$stored_uuid" == "$uuid" ]]; then
+            echo "Pre-registration check successful,$email,$uuid"
+            return 0
+        fi
+    done < "$USER_STORE"
+
+    echo "Email is not found"
     return 1
 }
 
@@ -92,8 +179,23 @@ case "$1" in
     check_login)
         check_login "$2" "$3"
         ;;
+    view_all_users)
+        view_all_users
+        ;;
+    download_all_users)
+        download_all_users
+        ;;
+    get_patient)
+        get_patient "$2"
+        ;;
+    check_pre_registration)
+        check_pre_registration "$2" "$3"
+        ;;
+    register_patient)
+        register_patient "$2"
+        ;;
     *)
-        echo "Usage: $0 {create_store|initiate_registration|complete_registration|check_login}"
+        echo "Usage: $0 {create_store|initiate_registration|complete_registration|get_lifespan|check_login|check_pre_registration|register_patient}"
         exit 1
         ;;
 esac
