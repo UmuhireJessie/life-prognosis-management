@@ -1,16 +1,21 @@
 package src.model;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.UUID;
 
 import src.Main;
 import src.ui.LifePrognosisUI;
-import src.utils.Helper;
 
 public class Patient extends User {
     private LocalDate dateOfBirth;
@@ -85,6 +90,9 @@ public class Patient extends User {
                 case 2:
                     updatePatientProfile(scanner);
                     break;
+                case 4:
+                    generateDemiseSchedule();
+                    break;
                 case 5:
                     System.out.println("Logging out...");
                     break;
@@ -101,6 +109,9 @@ public class Patient extends User {
                     break;
                 case 3:
                     updatePatientProfile(scanner);
+                    break;
+                case 5:
+                    generateDemiseSchedule();
                     break;
                 case 6:
                     System.out.println("Logging out...");
@@ -240,6 +251,33 @@ public class Patient extends User {
     public static double getAverageLifespanByCountry(String countryISOCode) {
         return lifeExpectancyMap.getOrDefault(countryISOCode, 75.0);
     }
+
+
+    public void generateDemiseSchedule() {
+        
+        LocalDate demiseDate = LocalDate.now().plusYears((long) computeSurvivalRate());
+        String fileName = email+ "_demise_schedule.ics";
+
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileName))) {
+            writer.write("BEGIN:VCALENDAR\n");
+            writer.write("VERSION:2.0\n");
+            writer.write("PRODID:-//hacksw/handcal//NONSGML v1.0//EN\n");
+            writer.write("BEGIN:VEVENT\n");
+            writer.write("UID:" + UUID.randomUUID().toString() + "\n");
+            writer.write("DTSTAMP:" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd'T'HHmmss'Z'")) + "\n");
+            writer.write("DTSTART:" + demiseDate.format(DateTimeFormatter.BASIC_ISO_DATE) + "\n");
+            writer.write("DTEND:" + demiseDate.plusDays(1).format(DateTimeFormatter.BASIC_ISO_DATE) + "\n");
+            writer.write("SUMMARY:Estimated Demise Date for " + email + "\n");
+            writer.write("DESCRIPTION:Based on the computed survival rate of " + String.format("%.2f", computeSurvivalRate()) + " years.\n");
+            writer.write("END:VEVENT\n");
+            writer.write("END:VCALENDAR\n");
+
+            System.out.println("Demise schedule has been generated and saved as " + fileName);
+        } catch (IOException e) {
+            System.err.println("Error generating demise schedule: " + e.getMessage());
+        }
+    }
+
 
     @Override
     public String toString() {

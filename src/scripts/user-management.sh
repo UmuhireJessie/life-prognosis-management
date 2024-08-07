@@ -77,10 +77,10 @@ complete_registration() {
 
     echo "Registration completed for UUID: $uuid"
 }
-
+# Function to update patient data
 update_patient_data() {
-    local email=$1
-    
+    local email=$2
+    shift 2 # Remove the email from the argument list
 
     # Default values to empty
     local first_name="" last_name="" dob="" has_hiv="" diagnosis_date="" on_art="" art_start_date="" country_code=""
@@ -113,7 +113,7 @@ update_patient_data() {
             new_art_start_date=${art_start_date:-$existing_art_start_date}
             new_country_code=${country_code:-$existing_country_code}
 
-            echo "$email,$user_uuid,$stored_password,$role,$new_first_name,$new_last_name,$new_dob,$new_has_hiv,$new_diagnosis_date,$new_on_art,$new_art_start_date,$new_country_code" >> "$TMP_STORE"
+            echo "$user_email,$user_uuid,$stored_password,$role,$new_first_name,$new_last_name,$new_dob,$new_has_hiv,$new_diagnosis_date,$new_on_art,$new_art_start_date,$new_country_code" >> "$TMP_STORE"
         else
             echo "$user_email,$user_uuid,$stored_password,$role,$existing_first_name,$existing_last_name,$existing_dob,$existing_has_hiv,$existing_diagnosis_date,$existing_on_art,$existing_art_start_date,$existing_country_code" >> "$TMP_STORE"
         fi
@@ -204,6 +204,7 @@ export_analytics() {
     echo "Analytics export functionality to be implemented"
 }
 
+
 # Main script execution
 case "$1" in
     create_store)
@@ -222,7 +223,7 @@ case "$1" in
         display_patient_info "$2" "$3"
         ;;
     update_patient_data)
-        update_patient_data "$1" "${@}"
+        update_patient_data "$@"
         ;;   
     get_lifespan)
         get_lifespan_by_country "$2"
@@ -245,11 +246,14 @@ case "$1" in
     download_all_users)
         download_all_users
         ;;
+    seed_user_store)
+        seed_user_store
+        ;;
     export_analytics)
         export_analytics
         ;;
     *)
-        echo "Usage: $0 {create_store|initiate_registration|complete_registration|get_lifespan|check_login|get_patient|view_all_users|aggregate_data|download_all_users|export_analytics}"
+        echo "Usage: $0 {create_store|initiate_registration|complete_registration|get_lifespan|check_login|get_patient|view_all_users|aggregate_data|download_all_users|seed_user_store|export_analytics}"
         exit 1
         ;;
 esac
