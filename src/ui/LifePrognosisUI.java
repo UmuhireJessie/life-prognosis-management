@@ -10,6 +10,20 @@ import java.time.LocalDate;
 public class LifePrognosisUI {
 
     public static void main(String[] args) {
+        Patient patient = getUserData();
+        //store them in the Patient_store.
+
+        // Display patient details
+        System.out.println("\nPatient Details:");
+        System.out.println(patient);
+
+        // Calculate and display survival rate
+        double survivalRate = patient.computeSurvivalRate();
+        System.out.println("\nSurvival Rate: " + survivalRate + " years");
+
+        
+    }
+    public static Patient getUserData(){
         Scanner scanner = new Scanner(System.in);
 
         System.out.println("Welcome to Life Prognosis Management");
@@ -74,20 +88,11 @@ public class LifePrognosisUI {
 
         System.out.print("Country ISO Code: ");
         String countryISOCode = scanner.nextLine().trim();
-
-        // Create Patient object
-        Patient patient = new Patient(firstName, lastName, email, password,
-                dateOfBirthStr, hasHIV, diagnosisDateStr,
-                onART, artStartDateStr, countryISOCode);
-
-        // Display patient details
-        System.out.println("\nPatient Details:");
-        System.out.println(patient);
-
-        // Calculate and display survival rate
-        double survivalRate = patient.computeSurvivalRate();
-        System.out.println("\nSurvival Rate: " + survivalRate + " years");
-
         scanner.close();
+        Patient patient =new Patient(firstName, lastName, email, password,
+        dateOfBirthStr, hasHIV, diagnosisDateStr,
+        onART, artStartDateStr, countryISOCode);
+
+        return  patient;
     }
 }

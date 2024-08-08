@@ -67,6 +67,7 @@ public class Main {
                 }
             } else {
                 System.out.println("Login failed. " + loginResult);
+                scanner.close();
                 return; // Exit if login fails
             }
         }

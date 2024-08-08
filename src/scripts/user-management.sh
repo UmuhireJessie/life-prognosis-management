@@ -3,6 +3,7 @@
 USER_STORE="./src/data/user-store.txt"
 TMP_STORE="./src/data/tmp_user_store.txt"
 LIFE_EXPECTANCY_STORE="./src/data/life-expectancy.csv"
+PATIENT_INFO_STORE="./src/data/patient_info.csv"
 
 # Function to retrieve average lifespan by country
 get_lifespan_by_country() {
@@ -48,10 +49,14 @@ complete_registration() {
 
     local hashed_password=$(echo -n "$password" | openssl dgst -sha256 -binary | base64)
 
+    local uuid_check_passed=false
+
     # Ensure atomic update by using a temporary file
     while IFS=, read -r email user_uuid stored_password role; do
         if [[ "$user_uuid" == "$uuid" ]]; then
-            echo "$email,$uuid,$hashed_password,Patient,$first_name,$last_name,$dob,$has_hiv,$diagnosis_date,$on_art,$art_start_date,$country_code" >> "$TMP_STORE"
+            # Update only the password in user-store.txt if the UUID check passes
+            echo "$email,$uuid,$hashed_password,$role" >> "$TMP_STORE"
+            uuid_check_passed=true
         else
             echo "$email,$user_uuid,$stored_password,$role" >> "$TMP_STORE"
         fi
@@ -59,8 +64,41 @@ complete_registration() {
 
     mv "$TMP_STORE" "$USER_STORE"
 
-    echo "Registration completed for UUID: $uuid"
+    if [ "$uuid_check_passed" = true ]; then
+        # Store the rest of the information in patient_info.csv
+        echo "$uuid,$first_name,$last_name,$email,$dob,$has_hiv,$diagnosis_date,$on_art,$art_start_date,$country_code" >> "$PATIENT_INFO_STORE"
+        echo "Registration completed for UUID: $uuid"
+    else
+        echo "UUID check failed. Registration not completed."
+    fi
 }
+# complete_registration() {
+#     local uuid=$1
+#     local first_name=$2
+#     local last_name=$3
+#     local password=$4
+#     local dob=$5
+#     local has_hiv=$6
+#     local diagnosis_date=$7
+#     local on_art=$8
+#     local art_start_date=$9
+#     local country_code=${10}
+
+#     local hashed_password=$(echo -n "$password" | openssl dgst -sha256 -binary | base64)
+
+#     # Ensure atomic update by using a temporary file
+#     while IFS=, read -r email user_uuid stored_password role; do
+#         if [[ "$user_uuid" == "$uuid" ]]; then
+#             echo "$email,$uuid,$hashed_password,Patient,$first_name,$last_name,$dob,$has_hiv,$diagnosis_date,$on_art,$art_start_date,$country_code" >> "$TMP_STORE"
+#         else
+#             echo "$email,$user_uuid,$stored_password,$role" >> "$TMP_STORE"
+#         fi
+#     done < "$USER_STORE"
+
+#     mv "$TMP_STORE" "$USER_STORE"
+
+#     echo "Registration completed for UUID: $uuid"
+# }
 
 update_patient_data() {
     local email=$1

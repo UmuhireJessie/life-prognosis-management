@@ -18,7 +18,7 @@ public class Patient extends User {
     private boolean onART;
     private LocalDate artStartDate; // Nullable
     private String countryISOCode;
-
+   
     private static Map<String, Double> lifeExpectancyMap = new HashMap<>();
 
     static {
@@ -76,9 +76,15 @@ public class Patient extends User {
         // }
 
         System.out.print("Choose an option: ");
+        
+        // if (!scanner.hasNextInt()) {
+        //     System.out.println("Please enter a valid option number.");
+        //     return; // Exit the method early if the input is not an integer
+        // }
+       
         int choice = scanner.nextInt();
-        scanner.nextLine(); // Consume newline
-
+        scanner.nextLine(); // Consume the newline left-over
+    
         switch (choice) {
             case 1:
                 completeRegistration(scanner);
@@ -92,17 +98,63 @@ public class Patient extends User {
             default:
                 System.out.println("Invalid option.");
         }
+    
+        // scanner.close();
+    
+        // scanner.close();
     }
 
     private void completeRegistration(Scanner scanner) {
-        LifePrognosisUI.main(null);
+        try {
+            // System.out.print("Enter Patient Email: ");
+            // String email = scanner.nextLine().trim();
+            //
+            //prep user data 
+            System.out.print("enter uuid: ");
+        String uuid = scanner.nextLine().trim();
+            Patient patient = LifePrognosisUI.getUserData();
+            String dob = "";
+            String dib = "";
+            String adob = "";
+            if(patient.dateOfBirth != null){
+                dob = patient.dateOfBirth.toString();
+            }
+            if(patient.diagnosisDate != null){
+                dib = patient.diagnosisDate.toString();
+            }
+            if(patient.artStartDate != null){
+                adob = patient.artStartDate.toString();
+            }
+            String[] userData =  {
+                uuid,
+                patient.getFirstName(),
+                patient.getLastName(),
+                patient.getPassword(),
+               dob,
+                Boolean.toString(patient.hasHIV),    // Convert boolean to String
+                dib,
+                Boolean.toString(patient.onART),      // Convert boolean to String
+               adob,
+                patient.countryISOCode
+            };
+            
+            // Call bash script to register the patient
+
+            String result = Main.callBashFunction("complete_registration", userData);
+            System.out.println(result);
+
+            patient.displayOptions();
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void viewPatientProfile(Scanner scanner) {
         try {
             // Call bash script to view patient profile
             String result = Main.callBashFunction("get_patient", email);
-            System.out.println("THis shoulf be the result: " + result);
+            System.out.println("THis should be the result: " + result);
 
             displayOptions();
             
