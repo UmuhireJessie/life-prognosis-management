@@ -2,170 +2,132 @@ package src;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
-import src.model.Admin;
 import src.model.Patient;
+import src.model.Admin;
+import src.model.User;
+import java.util.InputMismatchException;
 
 public class Main {
 
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
+        System.out.println("Welcome to Life Prognosis Management System");
+        System.out.println("\t1. Login");
+        System.out.println("\t2. Register as a Patient");
+        System.out.println("\t3. Quit");
+        System.out.print("Choose an option: ");
+        int choice = scanner.nextInt();
+        scanner.nextLine(); // Consume newline
+
+        // Loop until a valid choice is made
         while (true) {
-            System.out.println("Welcome to Life Prognosis Management System");
-            System.out.println("1. Login");
-            System.out.println("2. Register");
-            System.out.println("3. Exit");
-            System.out.print("Choose an option: ");
-            int choice = scanner.nextInt();
-            scanner.nextLine(); // Consume newline
-
-            switch (choice) {
-                case 1:
-                    loginUser(scanner);
-                    break;
-                case 2:
-                    registerUser(scanner);
-                    break;
-                case 3:
-                    System.out.println("Exiting the system. Goodbye!");
-                    scanner.close();
-                    System.exit(0);
-                default:
-                    System.out.println("Invalid choice. Please try again.");
-            }
-        }
-    }
-
-    private static void loginUser(Scanner scanner) {
-        System.out.print("Enter Email: ");
-        String email = scanner.nextLine().trim();
-        System.out.print("Enter Password: ");
-        String password = scanner.nextLine().trim();
-
-        String loginResult = checkLogin(email, password);
-        if (loginResult != null) {
-            String[] parts = loginResult.split(",");
-            String role = parts[3].trim();
-            if ("Admin".equals(role)) {
-                handleAdminMenu(scanner, email);
-            } else if ("Patient".equals(role)) {
-                handlePatientMenu(scanner, email);
-            }
-        } else {
-            System.out.println("Login failed. Please check your credentials.");
-        }
-    }
-
-    private static void registerUser(Scanner scanner) {
-        System.out.print("Enter Email for new user: ");
-        String email = scanner.nextLine().trim();
-        initiateRegistration(email);
-    }
-
-    private static void handleAdminMenu(Scanner scanner, String email) {
-        Admin admin = new Admin("FirstName", "LastName", email, "password");
-        while (true) {
-            admin.displayOptions();
-            System.out.print("Choose an option: ");
-            int choice = scanner.nextInt();
-            scanner.nextLine(); // Consume newline
-
-            switch (choice) {
-                case 1:
-                    admin.viewAllUsers();
-                    break;
-                case 2:
-                    admin.aggregateData();
-                    break;
-                case 3:
-                    admin.downloadAllUsersInfo();
-                    break;
-                case 4:
-                    admin.exportAnalytics();
-                    break;
-                case 5:
-                    System.out.println("Logging out.");
-                    return;
-                default:
-                    System.out.println("Invalid choice. Please try again.");
-            }
-        }
-    }
-
-    private static void handlePatientMenu(Scanner scanner, String email) {
-        Patient patient = getPatientByEmail(email);
-        while (true) {
-            patient.displayOptions();
-            System.out.print("Choose an option: ");
-            int choice = scanner.nextInt();
-            scanner.nextLine(); // Consume newline
-
-            switch (choice) {
-                case 1:
-                    patient.viewProfile();
-                    break;
-                case 2:
-                    patient.updateProfile(scanner);
-                    break;
-                case 3:
-                    patient.downloadInfo();
-                    break;
-                case 4:
-                    System.out.println("Logging out.");
-                    return;
-                default:
-                    System.out.println("Invalid choice. Please try again.");
-            }
-        }
-    }
-
-    private static String checkLogin(String email, String password) {
-        try {
-            ProcessBuilder pb = new ProcessBuilder("./src/scripts/user-management.sh", "check_login", email, password);
-            Process process = pb.start();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            String line;
-            while ((line = reader.readLine()) != null) {
-                if (line.startsWith("Login successful")) {
-                    return line;
+            try {
+                if (choice < 1 || choice > 3) {
+                    System.out.print("Invalid choice. Please try again: ");
+                    choice = scanner.nextInt();
+                    scanner.nextLine(); // Consume newline
+                } else {
+                    break; // valid choice
                 }
-                System.out.println(line);
+            } catch (InputMismatchException e) {
+                System.out.print("Invalid input. Please enter a number (1-3): ");
+                scanner.next(); // Consume the invalid input
             }
-        } catch (Exception e) {
-            e.printStackTrace();
         }
-        return null;
+
+        User user = null;
+
+        if (choice == 1) {
+            System.out.print("\nEnter Email: ");
+            String email = scanner.nextLine().trim();
+            System.out.print("Enter Password: ");
+            String password = scanner.nextLine().trim();
+
+            // Admin email detected; prompt for password
+
+            String loginResult = callBashFunction("check_login", email, password);
+            String[] resultParts = loginResult.split(",");
+
+            if ("Login successful".equals(resultParts[0].trim())) {
+                System.out.println("==> Login successful. Welcome!");
+                String role = resultParts[3].trim();
+
+                // Proceed based on role
+                if ("Admin".equals(role)) {
+                    user = new Admin("FirstName", "LastName", email, password); // dummy admin object
+                    user.displayOptions();
+                } else if ("Patient".equals(role)) {
+                    // Dummy patient data for instantiation
+                    user = new Patient("FirstName", "LastName", email, password,
+                            "1990-01-01", false, "", false, "", "US");
+                    user.displayOptions();
+                }
+            } else {
+                System.out.println("Login failed. " + loginResult);
+                return; // Exit if login fails
+            }
+        }
+
+        if (choice == 2) {
+            System.out.println("Welcome to Patient Registration");
+            System.out.print("Enter Email: ");
+            String email = scanner.nextLine().trim();
+            System.out.print("Enter UUID you received: ");
+            String uuid = scanner.nextLine().trim();
+
+            // Call bash function to check if the email provided has already been registered
+            String initialCheckResult = callBashFunction("check_pre_registration", email, uuid);
+            String[] resultParts = initialCheckResult.split(",");
+
+            if ("Email is not found".equals(resultParts[0].trim())) {
+                System.out.println("Sorry, email is not pre-registered. Please admin to initiate your registration");
+            } else if ("Login check failed".equals(resultParts[0].trim())) {
+                System.out.println("Please enter your email and uuid correctly.");
+            } else {
+                user = new Patient("FirstName", "LastName", email, "",
+                        "1990-01-01", false, "", false, "", "US");
+                user.displayOptions();
+            }
+
+        } else if (choice == 3) {
+            return;
+        }
+        scanner.close();
     }
 
-    private static void initiateRegistration(String email) {
+    // Method to build the command for ProcessBuilder
+    private static ProcessBuilder buildCommand(String functionName, String... args) {
+        List<String> command = new ArrayList<>();
+        command.add("./src/scripts/user-management.sh");
+        command.add(functionName);
+
+        for (String arg : args) {
+            command.add(arg);
+        }
+
+        return new ProcessBuilder(command);
+    }
+
+    // Method to call bash functions
+    public static String callBashFunction(String functionName, String... args) {
+        String result = null;
         try {
-            ProcessBuilder pb = new ProcessBuilder("./src/scripts/user-management.sh", "initiate_registration", email);
+            ProcessBuilder pb = buildCommand(functionName, args);
             Process process = pb.start();
             BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            StringBuilder output = new StringBuilder();
             String line;
             while ((line = reader.readLine()) != null) {
-                System.out.println(line);
+                output.append(line).append("\n");
             }
+            result = output.toString();
         } catch (Exception e) {
             e.printStackTrace();
         }
+        return result;
     }
 
-    private static Patient getPatientByEmail(String email) {
-        try {
-            ProcessBuilder pb = new ProcessBuilder("./src/scripts/user-management.sh", "get_patient", email);
-            Process process = pb.start();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            String line = reader.readLine();
-            if (line != null) {
-                String[] parts = line.split(",");
-                return new Patient(parts[0], parts[1], parts[2], parts[3], parts[4], 
-                                   Boolean.parseBoolean(parts[5]), parts[6], 
-                                   Boolean.parseBoolean(parts[7]), parts[8], parts[9]);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
 }

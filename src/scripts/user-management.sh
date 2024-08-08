@@ -18,7 +18,7 @@ get_patient() {
 create_user_store() {
     if [ ! -f "$USER_STORE" ]; then
         touch "$USER_STORE"
-        echo "admin@example.com,$(uuidgen),$(echo -n "admin123" | openssl dgst -sha256 -binary | base64),Admin" >> "$USER_STORE"
+        echo "admin@example.com,$(uuidgen),$(echo -n 'admin123' | openssl dgst -sha256 -binary | base64),Admin" >> "$USER_STORE"
         echo "user-store.txt created with initial admin user."
     else
         echo "user-store.txt already exists."
@@ -144,10 +144,31 @@ check_login() {
     local password=$2
     local hashed_password=$(echo -n "$password" | openssl dgst -sha256 -binary | base64)
 
-    while IFS=, read -r stored_email uuid stored_password role; do
-        if [[ "$stored_email" == "$email" && "$stored_password" == "$hashed_password" ]]; then
-            echo "Login successful,$email,$uuid,$role"
-            return 0
+    while IFS=, read -r stored_email uuid stored_password role first_name last_name dob has_hiv diagnosis_date on_art art_start_date country_code; do
+        if [[ "$stored_email" == "$email" ]]; then
+            if [[ "$role" == "Admin" ]]; then
+                if [[ -z "$password" ]]; then
+                    echo "Password required for Admin login"
+                    return 1
+                elif [[ "$stored_password" == "$hashed_password" ]]; then
+                    echo "Login successful,$email,$uuid,$role"
+                    return 0
+                else
+                    echo "Login failed for $email"
+                    return 1
+                fi
+            elif [[ "$role" == "Patient" ]]; then
+                if [[ -z "$stored_password" ]]; then
+                    echo "Registration incomplete,$email,$uuid"
+                    return 1
+                elif [[ "$stored_password" == "$hashed_password" ]]; then
+                    echo "Login successful,$email,$uuid,$role"
+                    return 0
+                else
+                    echo "Login failed for $email"
+                    return 1
+                fi
+            fi
         fi
     done < "$USER_STORE"
 
@@ -176,6 +197,22 @@ export_analytics() {
     echo "Analytics export functionality to be implemented"
 }
 
+# Function to check pre-registration
+check_pre_registration() {
+    local email=$1
+    local uuid=$2
+
+    while IFS=, read -r stored_email stored_uuid stored_password role; do
+        if [[ "$stored_email" == "$email" && "$stored_uuid" == "$uuid" ]]; then
+            echo "Pre-registration check successful,$email,$uuid"
+            return 0
+        fi
+    done < "$USER_STORE"
+
+    echo "Email is not found"
+    return 1
+}
+
 # Main script execution
 case "$1" in
     create_store)
@@ -198,6 +235,21 @@ case "$1" in
         ;;
     check_login)
         check_login "$2" "$3"
+        ;;
+    view_all_users)
+        view_all_users
+        ;;
+    download_all_users)
+        download_all_users
+        ;;
+    get_patient)
+        get_patient "$2"
+        ;;
+    check_pre_registration)
+        check_pre_registration "$2" "$3"
+        ;;
+    register_patient)
+        register_patient "$2"
         ;;
     get_patient)
         get_patient "$2"
