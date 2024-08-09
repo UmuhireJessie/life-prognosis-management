@@ -1,25 +1,22 @@
 #!/bin/bash
 
+
+#-----------------------------------------------------------------------------------------------------------------------------------
 USER_STORE="./src/data/user-store.txt"
 TMP_STORE="./src/data/tmp_user_store.txt"
 LIFE_EXPECTANCY_STORE="./src/data/life-expectancy.csv"
+#-----------------------------------------------------------------------------------------------------------------------------------
+# Function to register a new patient
+register_patient() { #admin class
+    local email=$1
+    local uuid=$(uuidgen)
+    local role="Patient"
 
-# Function to retrieve average lifespan by country
-get_lifespan_by_country() {
-    local country_code=$1
-    awk -F, -v code="$country_code" '$4 == code {print $7}' $LIFE_EXPECTANCY_STORE
+    # Append the new patient record to the user-store.txt
+    echo "$email,$uuid,,${role}" >> "$USER_STORE"
+    echo "Registered new patient with Email: $email and UUID: $uuid"
 }
 
-# Function to create user-store.txt if it doesn't exist
-create_user_store() {
-    if [ ! -f "$USER_STORE" ]; then
-        touch "$USER_STORE"
-        echo "admin@example.com,$(uuidgen),$(echo -n 'admin123' | openssl dgst -sha256 -binary | base64),Admin" >> "$USER_STORE"
-        echo "user-store.txt created with initial admin user."
-    else
-        echo "user-store.txt already exists."
-    fi
-}
 
 # Function to initiate registration
 initiate_registration() {
@@ -28,9 +25,33 @@ initiate_registration() {
     echo "$email,$uuid,,Admin" >> "$USER_STORE"
     echo "Initiated registration for $email with UUID: $uuid"
 }
+#-----------------------------------------------------------------------------------------------------------------------------------
+
+# Function to view all users
+view_all_users() { #Admin class
+    cat "$USER_STORE"
+}
+#-------------------------------------------------------------------------------------------------------------------------------------
+
+#Aggregate the user data in week3 
+
+#-------------------------------------------------------------------------------------------------------------------------------------
+
+# Function to download all users info
+download_all_users() {
+    cp "$USER_STORE" "./all_users_info.csv"
+    echo "All users' information has been downloaded to all_users_info.csv"
+}
+
+#-----------------------------------------------------------------------------------------------------
+
+#Export data in week3
+
+#-----------------------------------------------------------------------------------------------------
+
 
 # Function to complete registration
-complete_registration() {
+complete_registration() { #Patient class
     local uuid=$1
     local first_name=$2
     local last_name=$3
@@ -58,23 +79,14 @@ complete_registration() {
     echo "Registration completed for UUID: $uuid"
 }
 
-
-# Function to view all users
-view_all_users() {
-    cat "$USER_STORE"
-}
-
-# Function to download all users info
-download_all_users() {
-    cp "$USER_STORE" "./all_users_info.csv"
-    echo "All users' information has been downloaded to all_users_info.csv"
-}
+#------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Function to get patient data
 # get_patient() {
 #     local email=$1
 #     grep "^$email," "$USER_STORE" | cut -d',' -f5-
 # }
+
 
 # Function to get patient data
 get_patient() {
@@ -96,17 +108,38 @@ get_patient() {
     fi
 }
 
+#-------------------------------------------------------------------------------------------------------------------------------------------
 
-# Function to register a new patient
-register_patient() {
-    local email=$1
-    local uuid=$(uuidgen)
-    local role="Patient"
 
-    # Append the new patient record to the user-store.txt
-    echo "$email,$uuid,,${role}" >> "$USER_STORE"
-    echo "Registered new patient with Email: $email and UUID: $uuid"
+# Function to retrieve average lifespan by country
+get_lifespan_by_country() {
+    local country_code=$1
+    awk -F, -v code="$country_code" '$4 == code {print $7}' $LIFE_EXPECTANCY_STORE
 }
+
+# Function to create user-store.txt if it doesn't exist
+create_user_store() {
+    if [ ! -f "$USER_STORE" ]; then
+        touch "$USER_STORE"
+        echo "admin@example.com,$(uuidgen),$(echo -n 'admin123' | openssl dgst -sha256 -binary | base64),Admin" >> "$USER_STORE"
+        echo "user-store.txt created with initial admin user."
+    else
+        echo "user-store.txt already exists."
+    fi
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 # Function to check login credentials
 check_login() {
@@ -161,7 +194,7 @@ check_pre_registration() {
     echo "Email is not found"
     return 1
 }
-
+#---------------------------------------------------------------------------------------------------------------------------------------------------
 # Main script execution
 case "$1" in
     create_store)

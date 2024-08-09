@@ -6,6 +6,8 @@ public abstract class User {
     protected String email;
     protected String password;
     protected Role role;
+    //protected attribute is accessible to all classes in the same package.
+    //protected attribute is accessible to any subclasses (even if they are in different packages).
 
     // Constructor
     public User(String firstName, String lastName, String email, String password, Role role) {

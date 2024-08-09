@@ -1,5 +1,5 @@
 package src.model;
-
+//-----------------------------------------------------------------------------------------------------------------------------
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
@@ -8,7 +8,7 @@ import java.util.Scanner;
 
 import src.Main;
 import src.ui.LifePrognosisUI;
-
+//--------------------------------------------------------------------------------------------------------------------------------------------
 public class Patient extends User {
     private LocalDate dateOfBirth;
     private boolean hasHIV;
@@ -16,9 +16,8 @@ public class Patient extends User {
     private boolean onART;
     private LocalDate artStartDate; // Nullable
     private String countryISOCode;
-
-    private static Map<String, Double> lifeExpectancyMap = new HashMap<>();
-
+//-------------------------------------------------------------------------------------------------------------------------
+    private static Map<String, Double> lifeExpectancyMap = new HashMap<>(); //This is a map Map<String, Double>  (or dictionary) where each key is a String and each value is a Double.
     static {
         // Load the data from the environment variable
         String lifeExpectancyData = System.getenv("LIFE_EXPECTANCY_DATA");
@@ -33,7 +32,7 @@ public class Patient extends User {
             System.out.println("No life expectancy data available.");
         }
     }
-
+//-----------------------------------------------------------------------------------------
     public Patient(String firstName, String lastName, String email, String password,
             String dateOfBirth, boolean hasHIV, String diagnosisDate,
             boolean onART, String artStartDate, String countryISOCode) {
@@ -45,6 +44,7 @@ public class Patient extends User {
         this.artStartDate = artStartDate.isEmpty() ? null : LocalDate.parse(artStartDate);
         this.countryISOCode = countryISOCode;
     }
+//---------------------------------------------------------------------------------------------
 
     // Options that are only available to patients
     @Override
@@ -85,6 +85,12 @@ public class Patient extends User {
             case 2:
                 viewPatientProfile(scanner);
                 break;
+            //case 3: //week3
+                //Updatepatientprofile(scanner);
+                //break;
+            //case 4: //week3
+                //downloadYourInfo(scanner);
+                //break;
             case 6:
                 System.out.println("Logging out...");
                 break;
@@ -92,10 +98,13 @@ public class Patient extends User {
                 System.out.println("Invalid option.");
         }
     }
+    //----------------------------------------------------------------------------------
 
     private void completeRegistration(Scanner scanner) {
         LifePrognosisUI.main(null);
     }
+
+    //-----------------------------------------------------------------------------
 
     private void viewPatientProfile(Scanner scanner) {
         try {
@@ -103,14 +112,14 @@ public class Patient extends User {
             String result = Main.callBashFunction("get_patient", email);
             System.out.println("THis shoulf be the result: " + result);
 
-            displayOptions();
+            displayOptions(); 
             
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    
+    //--------------------------------------------------------------------------------------------------
 
     public double computeSurvivalRate() {
         if (!hasHIV) {
