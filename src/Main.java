@@ -72,7 +72,7 @@ public class Main {
         }
 
         if (choice == 2) {
-            System.out.println("Welcome to Patient Registration");
+            System.out.println("\nWelcome to Patient Registration");
             System.out.print("Enter Email: ");
             String email = scanner.nextLine().trim();
             System.out.print("Enter UUID you received: ");

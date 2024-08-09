@@ -80,6 +80,7 @@ public class LifePrognosisUI {
             String.valueOf(onART), artStartDateStr, countryISOCode};
         String result = Main.callBashFunction("complete_registration", args1);
         System.out.println(result);
+        
         // Create Patient object
         Patient patient = new Patient(firstName, lastName, email, password,
                 dateOfBirthStr, hasHIV, diagnosisDateStr,

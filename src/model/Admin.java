@@ -15,8 +15,7 @@ public class Admin extends User {
         Scanner scanner = new Scanner(System.in);
         System.out.println("\nAdmin Options:");
         System.out.println("\t1. Initiate Patient Registration");
-        System.out.println("\t2. Complete Patient Registration");
-        System.out.println("\t3. View All Users");
+        System.out.println("\t2. View All Users");
         System.out.println("\t3. Aggregate Data");
         System.out.println("\t4. Download All Users Info");
         System.out.println("\t5. Export Analytics");
@@ -31,9 +30,6 @@ public class Admin extends User {
                 registerPatient(scanner);
                 break;
             case 2:
-                completeRegistration(scanner);
-                break;
-            case 3:
                 viewAllUsers();
                 break;
             case 4:
@@ -66,15 +62,6 @@ public class Admin extends User {
         }
     }
 
-    private void completeRegistration(Scanner scanner) {
-        try {
-                LifePrognosisUI.main(null);
-            displayOptions();
-            
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
     private void viewAllUsers() {
         try {
             // Call bash script to view all users

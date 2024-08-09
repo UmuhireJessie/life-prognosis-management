@@ -33,6 +33,22 @@ initiate_registration() {
     echo "Initiated registration for $email with UUID: $uuid"
 }
 
+# Function to check pre-registration
+check_pre_registration() {
+    local email=$1
+    local uuid=$2
+
+    while IFS=, read -r stored_email stored_uuid stored_password role; do
+        if [[ "$stored_email" == "$email" && "$stored_uuid" == "$uuid" ]]; then
+            echo "Pre-registration check successful,$email,$uuid"
+            return 0
+        fi
+    done < "$USER_STORE"
+
+    echo "Email is not found"
+    return 1
+}
+
 # Function to complete registration
 complete_registration() {
     local uuid=$1
@@ -64,7 +80,7 @@ complete_registration() {
 
 update_patient_data() {
     local email=$1
-    shift
+    
 
     # Default values to empty
     local first_name="" last_name="" dob="" has_hiv="" diagnosis_date="" on_art="" art_start_date="" country_code=""
@@ -157,7 +173,19 @@ check_login() {
 
 # Function to view all users
 view_all_users() {
-    cat "$USER_STORE"
+    # Header row
+    printf "%-30s %-15s %-20s %-20s %-15s\n" "Email" "Role" "First Name" "Last Name" "Country ISO"
+
+    # Read each line from the user store
+    while IFS=',' read -r email uuid password role first_name last_name dob has_hiv diagnosis_date on_art art_start_date country_iso; do
+        # If the email is empty, skip the line
+        if [[ -z "$email" ]]; then
+            continue
+        fi
+
+        # Print each row with the defined column widths
+        printf "%-30s %-15s %-20s %-20s %-15s\n" "$email" "$role" "$first_name" "$last_name" "$country_iso"
+    done < "$USER_STORE"
 }
 
 # Function to aggregate data
@@ -187,11 +215,14 @@ case "$1" in
     complete_registration)
         complete_registration "$2" "$3" "$4" "$5" "$6" "$7" "$8" "$9" "${10}" "${11}"
         ;;
+    check_pre_registration)
+        check_pre_registration "$2" "$3"
+        ;;
     display_patient_info)
         display_patient_info "$2" "$3"
         ;;
     update_patient_data)
-        update_patient_data "$2" "${@:3}"
+        update_patient_data "$1" "${@}"
         ;;   
     get_lifespan)
         get_lifespan_by_country "$2"
