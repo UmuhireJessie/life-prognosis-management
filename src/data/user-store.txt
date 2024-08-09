@@ -1,0 +1,3 @@
+admin@example.com,DAC6A9B1-DEDD-4772-8291-1B03BA488960,JAvlGPq9JyTdtvBO6x2llnRI1+gxwIyPqCKAn3THIKk=,Admin
+azza@gmail.com,53B7C523-7387-4729-A7C3-569A237F1C59,SdCT1iq8QwotOR6Iy6u9KGhQhjtov1Y4Sn2mHSPh1x0=,Patient,Azza,Osman,2002-02-02,true,2020-02-02,true,2022-02-02,SU
+jessie@gmail.com,D5D34C17-5FFF-41AC-B8B0-F0E397754626,VjJChoDvQNaUWrpaLa46EP97+HatCvE9UE9treJvfqU=,Patient,Jessie,Umuhire,2002-02-02,false,,false,,RW
