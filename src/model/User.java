@@ -1,5 +1,5 @@
 package src.model;
-
+//----------------------------------------------------------------------------------------------------------------
 public abstract class User {
     protected String firstName;
     protected String lastName;
@@ -9,6 +9,7 @@ public abstract class User {
     //protected attribute is accessible to all classes in the same package.
     //protected attribute is accessible to any subclasses (even if they are in different packages).
 
+//---------------------------------------------------------------------------------------------------------------------------------------------------------
     // Constructor
     public User(String firstName, String lastName, String email, String password, Role role) {
         this.firstName = firstName;
@@ -17,11 +18,11 @@ public abstract class User {
         this.password = password;
         this.role = role;
     }
-
+//-------------------------------------------------------------------------------------------
     // Display user details
     public abstract void displayOptions();
-
-    // Getters and setters
+//------------------------------------------------------------------------------------------
+    // Getters and setters //access and modify the values of private variables in a class
     public String getFirstName() {
         return firstName;
     }

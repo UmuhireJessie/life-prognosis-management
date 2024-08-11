@@ -1,18 +1,20 @@
 package src.model;
+
 //---------------------------------------------------------------------------------------------------------------------------------
-import java.io.BufferedReader; // import BufferedReade class from java.io package to read the text from an input file or console
-import java.io.InputStreamReader; // import InputStreamReader class from java.io package  it reads bytes and decodes them into characters
+//import java.io.BufferedReader; // import BufferedReade class from java.io package to read the text from an input file or console
+//import java.io.InputStreamReader; // import InputStreamReader class from java.io package  it reads bytes and decodes them into characters
 import java.util.Scanner; //Scanner can read and interpret input data (like numbers and text) based on specific patterns defined by regular expressions.
 import src.Main; // import the main class from src package
-//---------------------------------------------------------------------------------------------------------------------------------
-public class Admin extends User {
+import src.ui.LifePrognosisUI;
+//-------------------------------------------------------------------------------------
+public class Admin extends User{
 
-    public Admin(String firstName, String lastName, String email, String password) {
+    public Admin(String firstName, String lastName, String email, String password) { // it is necessary to declare the constructor in the child class if you want to initialize the child class with specific values and ensure proper initialization of inherited fields. 
         super(firstName, lastName, email, password, Role.ADMIN);
     }
 //---------------------------------------------------------------------------------------------------------------------------------
-    @Override //new implementation of the parent method of the dispayOptions
-    public void displayOptions() {
+    @Override
+    public void displayOptions() { //new implementation of the parent method of the dispayOptions
         Scanner scanner = new Scanner(System.in); //This allows the program to capture user input from the console.
         System.out.println("\nAdmin Options:");
         System.out.println("\t1. Initiate Patient Registration");
@@ -39,9 +41,9 @@ public class Admin extends User {
             case 4:
                 downloadAllUsersInfo();
                 break;
-            //case 5: 
-               // exportAnalytics();
-                //break;
+            case 5: 
+                System.out.printIn("Export Analytics");
+                break;
             case 6:
                 System.out.println("Logging out...");
                 break;
