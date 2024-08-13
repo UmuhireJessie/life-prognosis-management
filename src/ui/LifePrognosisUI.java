@@ -1,11 +1,14 @@
 package src.ui;
+//--------------------------------------------------------
 
 import src.model.Patient;
 import src.utils.Helper;
 
 import java.util.Scanner;
 import java.util.regex.Pattern;
+import java.io.Console;
 import java.time.LocalDate;
+//--------------------------------------------------------------------------
 
 public class LifePrognosisUI {
 
@@ -28,8 +31,19 @@ public class LifePrognosisUI {
             email = scanner.nextLine().trim();
         }
 
-        System.out.print("Password: ");
-        String password = scanner.nextLine().trim();
+        //System.out.print("Password: ");
+        //String password = scanner.nextLine().trim();
+        Console console = System.console();
+            String password = null;
+            if (console != null) {
+                char[] passwordArray = console.readPassword("Enter Password: ");
+                password = new String(passwordArray);
+            } 
+            //else {
+                //System.out.print("Enter Password: ");
+                //password = scanner.nextLine().trim();
+            //}
+
         while (!Helper.isValidPassword(password)) {
             System.out.println("Password must be at least 8 characters long, include a special character, a capital letter, a small letter, and a number. Please enter a strong password:");
             password = scanner.nextLine().trim();

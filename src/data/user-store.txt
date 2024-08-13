@@ -1,1 +1,5 @@
-admin@example.com,4da48849-a7b3-48a6-bb82-6d4820d55988,JAvlGPq9JyTdtvBO6x2llnRI1+gxwIyPqCKAn3THIKk=,Admin
+admin@example.com,25ad4ace-1f60-41f9-8d8e-a9690cd0d24d,JAvlGPq9JyTdtvBO6x2llnRI1+gxwIyPqCKAn3THIKk=,Admin
+ruba@test.com,a5c6c087-3f6a-4bfc-94a0-f11f78c70b8d,,Patient
+ruba@test.com,9e3a8dc8-57e2-4943-9e39-d4ded7305d4a,,Patient
+ruba@test.com,9eeadbbd-7201-4c78-92e2-4a6c1da2723d,,Patient
+nawar@test.com,c46147c7-2cd5-449b-8428-71b66807f32b,,Patient

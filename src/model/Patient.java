@@ -2,14 +2,16 @@ package src.model;
 //-----------------------------------------------------------------------------------------------------------------------------
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
 import src.Main;
 import src.ui.LifePrognosisUI;
 //--------------------------------------------------------------------------------------------------------------------------------------------
-public class Patient extends User {
+public class Patient extends User { 
     private LocalDate dateOfBirth;
     private boolean hasHIV;
     private LocalDate diagnosisDate; // Nullable
@@ -17,10 +19,14 @@ public class Patient extends User {
     private LocalDate artStartDate; // Nullable
     private String countryISOCode;
 //-------------------------------------------------------------------------------------------------------------------------
-    private static Map<String, Double> lifeExpectancyMap = new HashMap<>(); //This is a map Map<String, Double>  (or dictionary) where each key is a String and each value is a Double.
+    private static Map<String, Double> lifeExpectancyMap = new HashMap<>();
+
     static {
-        // Load the data from the environment variable
-        String lifeExpectancyData = System.getenv("LIFE_EXPECTANCY_DATA");
+        // Set the system property (acts like an environment variable within your Java application
+        System.setProperty("LIFE_EXPECTANCY_DATA", "./src/data/life-expectancy.csv");
+
+        // Now retrieve it using System.getProperty()
+        String lifeExpectancyData = System.getProperty("LIFE_EXPECTANCY_DATA");
         if (lifeExpectancyData != null) {
             for (String entry : lifeExpectancyData.split(",")) {
                 String[] keyValue = entry.split(":");
@@ -32,6 +38,7 @@ public class Patient extends User {
             System.out.println("No life expectancy data available.");
         }
     }
+
 //-----------------------------------------------------------------------------------------
     public Patient(String firstName, String lastName, String email, String password,
             String dateOfBirth, boolean hasHIV, String diagnosisDate,
@@ -51,53 +58,72 @@ public class Patient extends User {
     public void displayOptions() {
         Scanner scanner = new Scanner(System.in);
 
-        System.out.println("Patient Options:");
-        System.out.println("1. Complete Registration");
-        System.out.println("2. View Profile");
-        System.out.println("3. Update Profile");
-        System.out.println("4. Download Your Info");
-        System.out.println("5. Get Life Prognosis");
-        System.out.println("6. Logout");
-
-        // if (password == null) {
+        // System.out.println("Patient Options:");
         // System.out.println("1. Complete Registration");
         // System.out.println("2. View Profile");
         // System.out.println("3. Update Profile");
         // System.out.println("4. Download Your Info");
         // System.out.println("5. Get Life Prognosis");
         // System.out.println("6. Logout");
-        // } else {
-        // System.out.println("1. View Profile");
-        // System.out.println("2. Update Profile");
-        // System.out.println("3. Download Your Info");
-        // System.out.println("4. Get Life Prognosis");
-        // System.out.println("5. Logout");
-        // }
+
+        if (password == "") {
+            System.out.println("1. Complete Registration");
+            System.out.println("2. View Profile");
+            System.out.println("3. Update Profile");
+            System.out.println("4. Download Your Info");
+            System.out.println("5. Get Life Prognosis");
+            System.out.println("6. Logout");
+        } else {
+            System.out.println("1. View Profile");
+            System.out.println("2. Update Profile");
+            System.out.println("3. Download Your Info");
+            System.out.println("4. Get Life Prognosis");
+            System.out.println("5. Logout");
+        }
 
         System.out.print("Choose an option: ");
         int choice = scanner.nextInt();
         scanner.nextLine(); // Consume newline
 
-        switch (choice) {
-            case 1:
-                completeRegistration(scanner);
-                break;
-            case 2:
-                viewPatientProfile(scanner);
-                break;
-            //case 3: //week3
-                //Updatepatientprofile(scanner);
-                //break;
-            //case 4: //week3
-                //downloadYourInfo(scanner);
-                //break;
-            case 6:
-                System.out.println("Logging out...");
-                break;
-            default:
-                System.out.println("Invalid option.");
+        if (password != "") {
+            switch (choice) {
+                case 1:
+                    viewPatientProfile(scanner);
+                    break;
+                case 2:
+                    updatePatientProfile(scanner);
+                    break;
+                case 5:
+                    System.out.println("Logging out...");
+                    break;
+                default:
+                    System.out.println("Invalid option.");
+            }
+        } else{
+            switch (choice) {
+                case 1:
+                    completeRegistration(scanner);
+                    break;
+                case 2:
+                    viewPatientProfile(scanner);
+                    break;
+                //case 3: 
+                    //updatePatientPofile(scanner);
+                    //break;
+                //case 4: //week3
+                    //downloadYourInfo(scanner);
+                    //break;
+                //case 5:
+                case 6:
+                    System.out.println("Logging out...");
+                    break;
+                default:
+                    System.out.println("Invalid option.");
+            }
         }
-    }
+
+    }    
+        
     //----------------------------------------------------------------------------------
 
     private void completeRegistration(Scanner scanner) {
@@ -110,7 +136,7 @@ public class Patient extends User {
         try {
             // Call bash script to view patient profile
             String result = Main.callBashFunction("get_patient", email);
-            System.out.println("THis shoulf be the result: " + result);
+            System.out.println("Here is your information: " + result);
 
             displayOptions(); 
             
@@ -121,6 +147,70 @@ public class Patient extends User {
 
     //--------------------------------------------------------------------------------------------------
 
+    private void updatePatientProfile(Scanner scanner) {
+        try {
+            // Assuming the email is already stored or retrieved earlier
+            String email = this.email; //The method assumes that the email is already stored in the object and retrieves it.
+
+            System.out.println("Leave fields empty if you do not want to update them.");
+
+            System.out.print("First Name: ");
+            String firstName = scanner.nextLine().trim();
+
+            System.out.print("Last Name: ");
+            String lastName = scanner.nextLine().trim();
+
+            System.out.print("Date of Birth (YYYY-MM-DD): ");
+            String dob = scanner.nextLine().trim();
+
+            System.out.print("HIV Status (true/false): ");
+            String hasHIV = scanner.nextLine().trim();
+
+            System.out.print("Diagnosis Date (YYYY-MM-DD, optional): ");
+            String diagnosisDate = scanner.nextLine().trim();
+
+            System.out.print("On ART (true/false): ");
+            String onART = scanner.nextLine().trim();
+
+            System.out.print("ART Start Date (YYYY-MM-DD, optional): ");
+            String artStartDate = scanner.nextLine().trim();
+
+            System.out.print("Country ISO Code: ");
+            String countryCode = scanner.nextLine().trim();
+
+            // Prepare arguments
+            List<String> bashArgs = new ArrayList<>(); //This line creates a new ArrayList of String type and assigns it to the variable bashArgs. This list will hold the arguments that will be passed to the Bash function.
+            bashArgs.add(email);
+            if (!firstName.isEmpty()) //This line checks if the firstName variable is not empty. If it is not empty, it adds a string in the format first_name=<firstName> to the bashArgs list.
+                bashArgs.add("first_name=" + firstName);
+            if (!lastName.isEmpty())
+                bashArgs.add("last_name=" + lastName);
+            if (!dob.isEmpty())
+                bashArgs.add("dob=" + dob);
+            if (!hasHIV.isEmpty())
+                bashArgs.add("has_hiv=" + hasHIV);
+            if (!diagnosisDate.isEmpty())
+                bashArgs.add("diagnosis_date=" + diagnosisDate);
+            if (!onART.isEmpty())
+                bashArgs.add("on_art=" + onART);
+            if (!artStartDate.isEmpty())
+                bashArgs.add("art_start_date=" + artStartDate);
+            if (!countryCode.isEmpty())
+                bashArgs.add("country_code=" + countryCode);
+
+            // Convert the list to an array and pass it to the Bash function
+            String[] argsArray = bashArgs.toArray(new String[0]);
+            System.out.println(argsArray[0] + argsArray[1]);
+            String result = Main.callBashFunction("update_patient_data", argsArray);
+            System.out.println(result);
+
+            displayOptions();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+//------------------------------------------------------------------------------------------------------------------ 
     public double computeSurvivalRate() {
         if (!hasHIV) {
             return getAverageLifespanByCountry(countryISOCode);
@@ -143,7 +233,7 @@ public class Patient extends User {
 
         return ageAtDiagnosis + remainingLifespan;
     }
-
+//------------------------------------------------------------------------------------------
     public static double getAverageLifespanByCountry(String countryISOCode) {
         return lifeExpectancyMap.getOrDefault(countryISOCode, 75.0);
     }

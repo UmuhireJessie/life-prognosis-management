@@ -5,6 +5,7 @@
 USER_STORE="./src/data/user-store.txt"
 TMP_STORE="./src/data/tmp_user_store.txt"
 LIFE_EXPECTANCY_STORE="./src/data/life-expectancy.csv"
+EXPORT_ANALYTICS="./src/data/export-analytics.csv"
 #-----------------------------------------------------------------------------------------------------------------------------------
 # Function to register a new patient
 register_patient() { #admin class
@@ -44,8 +45,12 @@ download_all_users() {
 }
 
 #-----------------------------------------------------------------------------------------------------
-
 #Export data in week3
+export_analytics() {
+    # Create an empty CSV file with the specified columns
+    echo "Average,Median,Percentile for some survival rates" > $EXPORT_ANALYTICS
+    echo "Empty analytics CSV file with specified columns has been created and downloaded to analytics.csv"
+}
 
 #-----------------------------------------------------------------------------------------------------
 
@@ -64,6 +69,8 @@ complete_registration() { #Patient class
     local country_code=${10}
 
     local hashed_password=$(echo -n "$password" | openssl dgst -sha256 -binary | base64)
+
+
 
     # Ensure atomic update by using a temporary file
     while IFS=, read -r email user_uuid stored_password role; do
@@ -86,7 +93,6 @@ complete_registration() { #Patient class
 #     local email=$1
 #     grep "^$email," "$USER_STORE" | cut -d',' -f5-
 # }
-
 
 # Function to get patient data
 get_patient() {
@@ -116,6 +122,7 @@ get_lifespan_by_country() {
     local country_code=$1
     awk -F, -v code="$country_code" '$4 == code {print $7}' $LIFE_EXPECTANCY_STORE
 }
+#--------------------------------------------------------------------
 
 # Function to create user-store.txt if it doesn't exist
 create_user_store() {
@@ -128,34 +135,22 @@ create_user_store() {
     fi
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+//---------------------------------------------------------------------------------------------------------
 # Function to check login credentials
 check_login() {
-    local email=$1
-    local password=$2
-    local hashed_password=$(echo -n "$password" | openssl dgst -sha256 -binary | base64)
+    local email=$1 #This assigns the first argument passed to the function to the local variable email.
+    local password=$2 
+    local hashed_password=$(echo -n "$password" | openssl dgst -sha256 -binary | base64) #The echo -n "$password" outputs the password without a newline, openssl dgst -sha256 -binary hashes it, and base64 encodes the binary hash.
 
-    while IFS=, read -r stored_email uuid stored_password role first_name last_name dob has_hiv diagnosis_date on_art art_start_date country_code; do
+    while IFS=, read -r stored_email uuid stored_password role first_name last_name dob has_hiv diagnosis_date on_art art_start_date country_code; do #This starts a loop that reads lines from a file, splitting each line into variables using a comma (,) as the delimiter.
         if [[ "$stored_email" == "$email" ]]; then
             if [[ "$role" == "Admin" ]]; then
-                if [[ -z "$password" ]]; then
+                if [[ -z "$password" ]]; then #Checks if the password is empty.
                     echo "Password required for Admin login"
-                    return 1
+                    return 1 #Exits the function with a status of 1 (indicating failure).
                 elif [[ "$stored_password" == "$hashed_password" ]]; then
                     echo "Login successful,$email,$uuid,$role"
-                    return 0
+                    return 0 #Exits the function with a status of 0 (indicating success).
                 else
                     echo "Login failed for $email"
                     return 1
@@ -173,11 +168,12 @@ check_login() {
                 fi
             fi
         fi
-    done < "$USER_STORE"
+    done < "$USER_STORE" #Exits the function with a status of 0 (indicating success).
 
     echo "Login failed for $email"
     return 1
 }
+//-----------------------------------------------------------------------------------------------------------------------------
 
 # Function to check pre-registration
 check_pre_registration() {
@@ -218,6 +214,9 @@ case "$1" in
     download_all_users)
         download_all_users
         ;;
+    export_analytics)
+        export_analytics
+        ;;    
     get_patient)
         get_patient "$2"
         ;;

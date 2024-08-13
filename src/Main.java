@@ -1,6 +1,8 @@
 package src;
+//-------------------------------------------
 
 import java.io.BufferedReader;
+import java.io.Console;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
@@ -9,6 +11,7 @@ import src.model.Patient;
 import src.model.Admin;
 import src.model.User;
 import java.util.InputMismatchException;
+//-----------------------------------------------------------
 
 public class Main {
 
@@ -23,7 +26,7 @@ public class Main {
         scanner.nextLine(); // Consume newline
 
         // Loop until a valid choice is made
-        while (true) {
+        while (true) { //while (true) creates an infinite loop. This means the loop will continue to execute indefinitely until it is explicitly broken out of using a break statement.
             try {
                 if (choice < 1 || choice > 3) {
                     System.out.print("Invalid choice. Please try again: ");
@@ -32,19 +35,30 @@ public class Main {
                 } else {
                     break; // valid choice
                 }
-            } catch (InputMismatchException e) {
+            } catch (InputMismatchException e) { //if the user enters somathing that is not an integer
                 System.out.print("Invalid input. Please enter a number (1-3): ");
                 scanner.next(); // Consume the invalid input
             }
         }
-
-        User user = null;
+//-------------------------------------------------------------------------------------------
+        User user = null; //This line declares a variable user of type User and initializes it to null. This variable will later hold an instance of either an Admin or Patient object based on the user’s role.  
 
         if (choice == 1) {
             System.out.print("\nEnter Email: ");
             String email = scanner.nextLine().trim();
-            System.out.print("Enter Password: ");
-            String password = scanner.nextLine().trim();
+
+            //System.out.print("Enter Password: ");
+            //String password = scanner.nextLine().trim();
+            Console console = System.console();
+            String password = null;
+            if (console != null) {
+                char[] passwordArray = console.readPassword("Enter Password: ");
+                password = new String(passwordArray);
+            } else {
+                System.out.print("Enter Password: ");
+                password = scanner.nextLine().trim();
+            }
+
 
             // Admin email detected; prompt for password
 
@@ -70,7 +84,7 @@ public class Main {
                 return; // Exit if login fails
             }
         }
-
+//--------------------------------------------------------------------------------------
         if (choice == 2) {
             System.out.println("Welcome to Patient Registration");
             System.out.print("Enter Email: ");
@@ -83,7 +97,7 @@ public class Main {
             String[] resultParts = initialCheckResult.split(",");
 
             if ("Email is not found".equals(resultParts[0].trim())) {
-                System.out.println("Sorry, email is not pre-registered. Please admin to initiate your registration");
+                System.out.println("Sorry, email is not pre-registered. Please initiate your registration");
             } else if ("Login check failed".equals(resultParts[0].trim())) {
                 System.out.println("Please enter your email and uuid correctly.");
             } else {
@@ -91,12 +105,15 @@ public class Main {
                         "1990-01-01", false, "", false, "", "US");
                 user.displayOptions();
             }
+            
+    //----------------------------------------------------------------------------    
 
         } else if (choice == 3) {
             return;
         }
         scanner.close();
     }
+    //---------------------------------------------------------------------------------
 
     // Method to build the command for ProcessBuilder
     private static ProcessBuilder buildCommand(String functionName, String... args) {
@@ -110,6 +127,7 @@ public class Main {
 
         return new ProcessBuilder(command);
     }
+    //----------------------------------------------------------------------------------
 
     // Method to call bash functions
     public static String callBashFunction(String functionName, String... args) {

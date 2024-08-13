@@ -6,6 +6,7 @@ package src.model;
 import java.util.Scanner; //Scanner can read and interpret input data (like numbers and text) based on specific patterns defined by regular expressions.
 import src.Main; // import the main class from src package
 import src.ui.LifePrognosisUI;
+
 //-------------------------------------------------------------------------------------
 public class Admin extends User{
 
@@ -42,7 +43,7 @@ public class Admin extends User{
                 downloadAllUsersInfo();
                 break;
             case 5: 
-                System.out.printIn("Export Analytics");
+                exportAnalytics();
                 break;
             case 6:
                 System.out.println("Logging out...");
@@ -68,15 +69,6 @@ public class Admin extends User{
         }
     } // The method registers a patient by prompting the admin for an email, calling a bash script to handle the registration, and then displaying the result.
 //---------------------------------------------------------------------------------------------------------------------------------
-    // private void viewAllUsers() {
-    //     try {
-    //         // Call bash script to view all users
-    //         String result = Main.callBashFunction("view_all_users");
-    //         System.out.println(result);
-    //     } catch (Exception e) {
-    //         e.printStackTrace();
-    //     }
-    // }
 
     private void viewAllUsers() {
         try {
@@ -86,28 +78,31 @@ public class Admin extends User{
             // Split the result into lines
             String[] lines = result.split("\n");
     
-            // Print table headers (centered)
-            System.out.printf("%-20s %-36s %-50s %-10s%n", "Email", "UUID", "Whatever", "Role");
+            // Print table headers with vertical lines
+            System.out.printf("| %-20s | %-36s | %-50s | %-10s |%n", "Email", "UUID", "Password", "Role");
             
             // Print a separator
-            System.out.println("---------------------------------------------------------------------------------------------");
+            System.out.println("|----------------------|--------------------------------------|----------------------------------------------------|------------|");
             
             // Process and display each line of user data
             for (String line : lines) {
                 // Assuming fields are separated by a comma
                 String[] fields = line.split(",");
                 if (fields.length >= 4) {
-                    System.out.printf("%-20s %-36s %-50s %-10s%n", fields[0], fields[1], fields[2], fields[3]);
+                    System.out.printf("| %-20s | %-36s | %-50s | %-10s |%n", fields[0], fields[1], fields[2], fields[3]);
                 }
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
+    
 //---------------------------------------------------------------------------------------------------------------------------------  
-    //Aggregate the user data function in week3
+//Aggregate the user data function in week3
 
 //---------------------------------------------------------------------------------------------------------------------------------  
+// Donwmload all the user data in a csv file:
+
     private void downloadAllUsersInfo() {
         try {
             // Call bash script to download user info
@@ -117,7 +112,19 @@ public class Admin extends User{
             e.printStackTrace();
         }
     }
-}
 //---------------------------------------------------------------------------------------------------------------------------------
-//export analytics function in week3
+
+//export analytics function:
+    private void exportAnalytics() {
+        try {
+            String result = Main.callBashFunction("export_analytics");
+            System.out.println(result);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }  
+    }
+
+
+}
+
 //---------------------------------------------------------------------------------------------------------------------------------
