@@ -1,6 +1,7 @@
 package src.utils;
 
 import java.time.LocalDate;
+import java.util.Scanner;
 import java.util.regex.Pattern;
 
 public class Helper {
@@ -26,6 +27,17 @@ public class Helper {
             return true;
         } catch (Exception e) {
             return false;
+        }
+    }
+
+    public static boolean getValidBooleanInput(Scanner scanner) {
+        while (true) {
+            String input = scanner.nextLine().trim();
+            if (input.equalsIgnoreCase("true") || input.equalsIgnoreCase("false")) {
+                return Boolean.parseBoolean(input);
+            } else {
+                System.out.println("Invalid input. Please enter either 'true' or 'false'.");
+            }
         }
     }
 }

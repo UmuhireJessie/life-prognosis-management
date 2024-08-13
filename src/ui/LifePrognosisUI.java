@@ -4,17 +4,22 @@ import java.util.Scanner;
 import src.Main;
 import src.model.Patient;
 import src.utils.Helper;
+import java.io.Console;
 
 public class LifePrognosisUI {
 
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
+        Console console = System.console();
 
-        System.out.println("Welcome to Life Prognosis Management");
+        String email = args[0];
+        String uuid = args[1];
+
+        System.out.println("\nWelcome to Life Prognosis Management");
         System.out.println("Please enter patient details:");
         
-        System.out.print("UUID: ");
-        String uuid = scanner.nextLine().trim();
+        System.out.println("UUID: " + uuid);
+        System.out.println("Email: " + email);
 
         System.out.print("First Name: ");
         String firstName = scanner.nextLine().trim();
@@ -22,15 +27,9 @@ public class LifePrognosisUI {
         System.out.print("Last Name: ");
         String lastName = scanner.nextLine().trim();
 
-        System.out.print("Email: ");
-        String email = scanner.nextLine().trim();
-        while (!Helper.isValidEmail(email)) {
-            System.out.println("Invalid email format. Please enter a valid email:");
-            email = scanner.nextLine().trim();
-        }
+        char[] passwordArray = console.readPassword("Password: ");
+        String password = new String(passwordArray);
 
-        System.out.print("Password: ");
-        String password = scanner.nextLine().trim();
         while (!Helper.isValidPassword(password)) {
             System.out.println("Password must be at least 8 characters long, include a special character, a capital letter, a small letter, and a number. Please enter a strong password:");
             password = scanner.nextLine().trim();
@@ -44,7 +43,7 @@ public class LifePrognosisUI {
         }
 
         System.out.print("Has HIV (true/false): ");
-        boolean hasHIV = scanner.nextBoolean();
+        boolean hasHIV = Helper.getValidBooleanInput(scanner);
 
         String diagnosisDateStr = "";
         boolean onART = false;
@@ -60,7 +59,7 @@ public class LifePrognosisUI {
             }
 
             System.out.print("On ART (true/false): ");
-            onART = scanner.nextBoolean();
+            onART = Helper.getValidBooleanInput(scanner);
             scanner.nextLine(); // Consume newline left-over
 
             if (onART) {
@@ -84,7 +83,7 @@ public class LifePrognosisUI {
         // Create Patient object
         Patient patient = new Patient(firstName, lastName, email, password,
                 dateOfBirthStr, hasHIV, diagnosisDateStr,
-                onART, artStartDateStr, countryISOCode);
+                onART, artStartDateStr, countryISOCode, uuid);
 
         // Display patient details
         System.out.println("\nPatient Details:");

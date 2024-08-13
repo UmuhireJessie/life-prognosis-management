@@ -2,7 +2,7 @@ package src.model;
 
 import java.util.Scanner;
 import src.Main;
-import src.ui.LifePrognosisUI;
+import src.utils.Helper;
 
 public class Admin extends User {
 
@@ -32,11 +32,14 @@ public class Admin extends User {
             case 2:
                 viewAllUsers();
                 break;
+            case 3:
+                aggregateData();
+                break;
             case 4:
                 downloadAllUsersInfo();
                 break;
             case 5:
-                System.out.println("Export Analytics");
+                exportAnalytics();
                 break;
             case 6:
                 System.out.println("Logging out...");
@@ -50,6 +53,10 @@ public class Admin extends User {
         try {
             System.out.print("Enter Patient Email: ");
             String email = scanner.nextLine().trim();
+            while (!Helper.isValidEmail(email)) {
+                System.out.println("Invalid email format. Please enter a valid email: ");
+                email = scanner.nextLine().trim();
+            }
 
             // Call bash script to register the patient
             String result = Main.callBashFunction("initiate_registration", email);
@@ -76,6 +83,26 @@ public class Admin extends User {
         try {
             // Call bash script to download user info
             String result = Main.callBashFunction("download_all_users");
+            System.out.println(result);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void aggregateData() {
+        try {
+            // Call bash script to aggregate data
+            String result = Main.callBashFunction("aggregate_data");
+            System.out.println(result);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void exportAnalytics() {
+        try {
+            // Call bash script to export analytics
+            String result = Main.callBashFunction("export_analytics");
             System.out.println(result);
         } catch (Exception e) {
             e.printStackTrace();

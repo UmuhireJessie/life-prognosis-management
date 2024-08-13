@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -24,6 +23,7 @@ public class Patient extends User {
     private boolean onART;
     private LocalDate artStartDate; // Nullable
     private String countryISOCode;
+    private String uuid;
 
     private static Map<String, Double> lifeExpectancyMap = new HashMap<>();
 
@@ -47,7 +47,7 @@ public class Patient extends User {
 
     public Patient(String firstName, String lastName, String email, String password,
             String dateOfBirth, boolean hasHIV, String diagnosisDate,
-            boolean onART, String artStartDate, String countryISOCode) {
+            boolean onART, String artStartDate, String countryISOCode, String uuid) {
         super(firstName, lastName, email, password, Role.PATIENT);
         this.dateOfBirth = LocalDate.parse(dateOfBirth);
         this.hasHIV = hasHIV;
@@ -55,6 +55,7 @@ public class Patient extends User {
         this.onART = onART;
         this.artStartDate = artStartDate.isEmpty() ? null : LocalDate.parse(artStartDate);
         this.countryISOCode = countryISOCode;
+        this.uuid = uuid;
     }
 
     // Options that are only available to patients
@@ -102,7 +103,7 @@ public class Patient extends User {
         } else {
             switch (choice) {
                 case 1:
-                    completeRegistration(scanner);
+                    completeRegistration(scanner, email, uuid);
                     break;
                 case 2:
                     viewPatientProfile(scanner);
@@ -124,8 +125,8 @@ public class Patient extends User {
 
     }
 
-    private void completeRegistration(Scanner scanner) {
-        LifePrognosisUI.main(null);
+    private void completeRegistration(Scanner scanner, String email, String uuid) {
+        LifePrognosisUI.main(new String[]{email, uuid});
     }
 
     private void viewPatientProfile(Scanner scanner) {
@@ -205,51 +206,17 @@ public class Patient extends User {
         }
     }
 
-    // private void updatePatientProfile(Scanner scanner) {
-    // try {
-    // System.out.print("Email: ");
-    // String email = scanner.nextLine().trim();
-    // while (!Helper.isValidEmail(email)) {
-    // System.out.println("Invalid email format. Please enter a valid email:");
-    // email = scanner.nextLine().trim();
-    // }
-
-    // // Call bash script to view patient profile
-    // String result = Main.callBashFunction("update_patient_data", email);
-    // System.out.println(result);
-
-    // displayOptions();
-
-    // } catch (Exception e) {
-    // e.printStackTrace();
-    // }
-    // }
-
     public double computeSurvivalRate() {
-        if (!hasHIV) {
-            return getAverageLifespanByCountry(countryISOCode);
+        String[] args = { email, countryISOCode, String.valueOf(hasHIV), String.valueOf(diagnosisDate), 
+                          String.valueOf(onART), String.valueOf(artStartDate) };
+        String result = Main.callBashFunction("compute_survival_rate", args);
+
+        try {
+            return Double.parseDouble(result.trim());
+        } catch (NumberFormatException e) {
+            System.err.println("Error parsing survival rate: " + e.getMessage());
+            return -1; // or handle error appropriately
         }
-
-        double averageLifespan = getAverageLifespanByCountry(countryISOCode);
-        long ageAtDiagnosis = ChronoUnit.YEARS.between(dateOfBirth, diagnosisDate);
-        long yearsSinceDiagnosis = ChronoUnit.YEARS.between(diagnosisDate, LocalDate.now());
-
-        if (!onART) {
-            return ageAtDiagnosis + 5;
-        }
-
-        double remainingLifespan = (averageLifespan - ageAtDiagnosis) * 0.9;
-        for (int i = 1; i <= yearsSinceDiagnosis; i++) {
-            if (i > 1) {
-                remainingLifespan *= 0.9;
-            }
-        }
-
-        return ageAtDiagnosis + remainingLifespan;
-    }
-
-    public static double getAverageLifespanByCountry(String countryISOCode) {
-        return lifeExpectancyMap.getOrDefault(countryISOCode, 75.0);
     }
 
 

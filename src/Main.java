@@ -8,12 +8,17 @@ import java.util.Scanner;
 import src.model.Patient;
 import src.model.Admin;
 import src.model.User;
+import src.utils.Helper;
+
 import java.util.InputMismatchException;
+import java.io.Console;
 
 public class Main {
 
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
+        Console console = System.console();
+
         System.out.println("Welcome to Life Prognosis Management System");
         System.out.println("\t1. Login");
         System.out.println("\t2. Register as a Patient");
@@ -43,11 +48,13 @@ public class Main {
         if (choice == 1) {
             System.out.print("\nEnter Email: ");
             String email = scanner.nextLine().trim();
-            System.out.print("Enter Password: ");
-            String password = scanner.nextLine().trim();
+            while (!Helper.isValidEmail(email)) {
+                System.out.println("Invalid email format. Please enter a valid email: ");
+                email = scanner.nextLine().trim();
+            }
 
-            // Admin email detected; prompt for password
-
+            char[] passwordArray = console.readPassword("Enter Password: ");
+            String password = new String(passwordArray);
             String loginResult = callBashFunction("check_login", email, password);
             String[] resultParts = loginResult.split(",");
 
@@ -62,7 +69,7 @@ public class Main {
                 } else if ("Patient".equals(role)) {
                     // Dummy patient data for instantiation
                     user = new Patient("FirstName", "LastName", email, password,
-                            "1990-01-01", false, "", false, "", "US");
+                            "1990-01-01", false, "", false, "", "US", "");
                     user.displayOptions();
                 }
             } else {
@@ -75,6 +82,10 @@ public class Main {
             System.out.println("\nWelcome to Patient Registration");
             System.out.print("Enter Email: ");
             String email = scanner.nextLine().trim();
+            while (!Helper.isValidEmail(email)) {
+                System.out.println("Invalid email format. Please enter a valid email: ");
+                email = scanner.nextLine().trim();
+            }
             System.out.print("Enter UUID you received: ");
             String uuid = scanner.nextLine().trim();
 
@@ -88,7 +99,7 @@ public class Main {
                 System.out.println("Please enter your email and uuid correctly.");
             } else {
                 user = new Patient("FirstName", "LastName", email, "",
-                        "1990-01-01", false, "", false, "", "US");
+                        "1990-01-01", false, "", false, "", "US", uuid);
                 user.displayOptions();
             }
 

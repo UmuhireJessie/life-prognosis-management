@@ -188,6 +188,70 @@ view_all_users() {
     done < "$USER_STORE"
 }
 
+# Function to compute survival rate and store it in the USER_STORE file
+compute_survival_rate() {
+    local email=$1
+    local country_iso=$2
+    local has_hiv=$3
+    local diagnosis_date=$4
+    local on_art=$5
+    local art_start_date=$6
+
+    # Default life expectancy (in case the country is not found in the CSV)
+    local default_life_expectancy=75.0
+    
+    # File containing life expectancy data
+    local file_path="./src/data/life-expectancy.csv"
+
+    # Fetch life expectancy for the given country
+    local life_expectancy=$(awk -F, -v iso="$country_iso" '$1 == iso {print $2}' "$file_path")
+    
+    # If the life expectancy is not found, use the default
+    if [ -z "$life_expectancy" ]; then
+        life_expectancy=$default_life_expectancy
+    fi
+    
+    # Convert diagnosis date and ART start date to Unix timestamps
+    local diagnosis_timestamp=$(date -d "$diagnosis_date" +"%s" 2>/dev/null || echo 0)
+    local art_start_timestamp=$(date -d "$art_start_date" +"%s" 2>/dev/null || echo 0)
+    local current_timestamp=$(date +"%s")
+    
+    # Calculate the age at diagnosis
+    local dob_timestamp=$(date -d "$(grep -E "^$email," "$USER_STORE" | cut -d',' -f7)" +"%s" 2>/dev/null || echo 0)
+    local age_at_diagnosis=$(( (diagnosis_timestamp - dob_timestamp) / 31536000 ))
+    local years_since_diagnosis=$(( (current_timestamp - diagnosis_timestamp) / 31536000 ))
+    
+    # If the patient does not have HIV
+    if [ "$has_hiv" == "false" ]; then
+        echo "$life_expectancy"
+        return
+    fi
+    
+    # If the patient is not on ART, add 5 years to their age at diagnosis
+    if [ "$on_art" == "false" ]; then
+        echo "$((age_at_diagnosis + 5))"
+        return
+    fi
+    
+    # Calculate remaining lifespan after ART start
+    local remaining_lifespan=$(echo "scale=2; ($life_expectancy - $age_at_diagnosis) * 0.9" | bc)
+    for (( i=1; i<=years_since_diagnosis; i++ )); do
+        if [ $i -gt 1 ]; then
+            remaining_lifespan=$(echo "scale=2; $remaining_lifespan * 0.9" | bc)
+        fi
+    done
+    
+    # Final survival rate
+    local survival_rate=$(echo "scale=2; $age_at_diagnosis + $remaining_lifespan" | bc)
+
+    # Update the USER_STORE file with the survival rate
+    awk -F, -v email="$email" -v sr="$survival_rate" 'BEGIN { OFS="," } $1 == email { print $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,sr } $1 != email { print $0 }' "$USER_STORE" > tmp_file && mv tmp_file "$USER_STORE"
+    
+    echo "$survival_rate"
+}
+
+
+
 # Function to aggregate data
 aggregate_data() {
     echo "Data aggregation functionality to be implemented"
@@ -199,13 +263,79 @@ download_all_users() {
     echo "All users' information has been downloaded to all_users_info.csv"
 }
 
+# Function to calculate mean
+calculate_mean() {
+    local sum=0
+    local count=0
+    while IFS=, read -r email uuid password role first_name last_name dob has_hiv diagnosis_date on_art art_start_date country_iso survival_rate; do
+        if [[ -n "$survival_rate" && "$survival_rate" != "Survival Rate" ]]; then
+            sum=$(echo "$sum + $survival_rate" | bc)
+            count=$((count + 1))
+        fi
+    done < "$USER_STORE"
+    mean=$(echo "scale=2; $sum / $count" | bc)
+    echo "$mean"
+}
+
+# Function to calculate median
+calculate_median() {
+    local survival_rates=($(awk -F, '{if(NR>1 && $13 != "") print $13}' "$USER_STORE" | sort -n))
+    local count=${#survival_rates[@]}
+    local mid=$((count / 2))
+    if (( count % 2 == 0 )); then
+        median=$(echo "scale=2; (${survival_rates[$mid-1]} + ${survival_rates[$mid]}) / 2" | bc)
+    else
+        median=${survival_rates[$mid]}
+    fi
+    echo "$median"
+}
+
+# Function to calculate mode
+calculate_mode() {
+    mode=$(awk -F, '{if(NR>1 && $13 != "") count[$13]++} END {for (val in count) {if (count[val] > max) {max = count[val]; mode = val}} print mode}' "$USER_STORE")
+    echo "$mode"
+}
+
+# Function to calculate standard deviation
+calculate_std_dev() {
+    local mean=$(calculate_mean)
+    local sum=0
+    local count=0
+    while IFS=, read -r email uuid password role first_name last_name dob has_hiv diagnosis_date on_art art_start_date country_iso survival_rate; do
+        if [[ -n "$survival_rate" && "$survival_rate" != "Survival Rate" ]]; then
+            diff=$(echo "$survival_rate - $mean" | bc)
+            sq_diff=$(echo "$diff * $diff" | bc)
+            sum=$(echo "$sum + $sq_diff" | bc)
+            count=$((count + 1))
+        fi
+    done < "$USER_STORE"
+    variance=$(echo "scale=2; $sum / $count" | bc)
+    std_dev=$(echo "scale=2; sqrt($variance)" | bc)
+    echo "$std_dev"
+}
+
 # Function to export analytics
 export_analytics() {
-    echo "Analytics export functionality to be implemented"
+    local mean=$(calculate_mean)
+    local median=$(calculate_median)
+    local mode=$(calculate_mode)
+    local std_dev=$(calculate_std_dev)
+
+    local output_file="./src/data/analytics_report.txt"
+
+    {
+        echo "Survival Rate Analytics Report"
+        echo "=============================="
+        echo "Mean: $mean"
+        echo "Median: $median"
+        echo "Mode: $mode"
+        echo "Standard Deviation: $std_dev"
+    } > "$output_file"
+
+    echo "Analytics report has been generated at $output_file"
 }
 
 
-# Main script execution
 case "$1" in
     create_store)
         create_user_store
@@ -234,9 +364,9 @@ case "$1" in
     get_patient)
         get_patient "$2"
         ;;
-    # calculate_life_expectancy)
-    #     calculate_life_expectancy "$1"
-    #     ;;
+    compute_survival_rate)
+        compute_survival_rate "$2" "$3" "$4" "$5" "$6" "$7" "$8" "$9" "${10}" "${11}"
+        ;;
     view_all_users)
         view_all_users
         ;;
@@ -253,7 +383,7 @@ case "$1" in
         export_analytics
         ;;
     *)
-        echo "Usage: $0 {create_store|initiate_registration|complete_registration|get_lifespan|check_login|get_patient|view_all_users|aggregate_data|download_all_users|seed_user_store|export_analytics}"
+        echo "Usage: $0 {create_store|initiate_registration|complete_registration|check_pre_registration|display_patient_info|update_patient_data|get_lifespan|check_login|get_patient|compute_survival_rate|view_all_users|aggregate_data|download_all_users|seed_user_store|export_analytics}"
         exit 1
         ;;
 esac
