@@ -19,7 +19,7 @@ public class Main {
         Scanner scanner = new Scanner(System.in);
         Console console = System.console();
 
-        System.out.println("Welcome to Life Prognosis Management System");
+        System.out.println("\nWelcome to Life Prognosis Management System");
         System.out.println("\t1. Login");
         System.out.println("\t2. Register as a Patient");
         System.out.println("\t3. Quit");
@@ -31,14 +31,14 @@ public class Main {
         while (true) {
             try {
                 if (choice < 1 || choice > 3) {
-                    System.out.print("Invalid choice. Please try again: ");
+                    System.out.print("--> Invalid choice. Please try again: ");
                     choice = scanner.nextInt();
                     scanner.nextLine(); // Consume newline
                 } else {
                     break; // valid choice
                 }
             } catch (InputMismatchException e) {
-                System.out.print("Invalid input. Please enter a number (1-3): ");
+                System.out.print("--> Invalid input. Please enter a number (1-3): ");
                 scanner.next(); // Consume the invalid input
             }
         }
@@ -46,10 +46,11 @@ public class Main {
         User user = null;
 
         if (choice == 1) {
+            System.out.println("\n============================================================================");
             System.out.print("\nEnter Email: ");
             String email = scanner.nextLine().trim();
             while (!Helper.isValidEmail(email)) {
-                System.out.println("Invalid email format. Please enter a valid email: ");
+                System.out.println("--> Invalid email format. Please enter a valid email: ");
                 email = scanner.nextLine().trim();
             }
 
@@ -59,7 +60,7 @@ public class Main {
             String[] resultParts = loginResult.split(",");
 
             if ("Login successful".equals(resultParts[0].trim())) {
-                System.out.println("==> Login successful. Welcome!");
+                System.out.println("--> Login successful. Welcome!");
                 String role = resultParts[3].trim();
 
                 // Proceed based on role
@@ -73,17 +74,17 @@ public class Main {
                     user.displayOptions();
                 }
             } else {
-                System.out.println("Login failed. " + loginResult);
+                System.out.println("--> Login failed. " + loginResult);
                 return; // Exit if login fails
             }
         }
 
         if (choice == 2) {
-            System.out.println("\nWelcome to Patient Registration");
+            System.out.println("\nWelcome to Patient Registration\n");
             System.out.print("Enter Email: ");
             String email = scanner.nextLine().trim();
             while (!Helper.isValidEmail(email)) {
-                System.out.println("Invalid email format. Please enter a valid email: ");
+                System.out.println("--> Invalid email format. Please enter a valid email: ");
                 email = scanner.nextLine().trim();
             }
             System.out.print("Enter UUID you received: ");
@@ -94,9 +95,9 @@ public class Main {
             String[] resultParts = initialCheckResult.split(",");
 
             if ("Email is not found".equals(resultParts[0].trim())) {
-                System.out.println("Sorry, email is not pre-registered. Please admin to initiate your registration");
+                System.out.println("--> Sorry, email is not pre-registered. Please admin to initiate your registration");
             } else if ("Login check failed".equals(resultParts[0].trim())) {
-                System.out.println("Please enter your email and uuid correctly.");
+                System.out.println("--> Please enter your email and uuid correctly.");
             } else {
                 user = new Patient("FirstName", "LastName", email, "",
                         "1990-01-01", false, "", false, "", "US", uuid);

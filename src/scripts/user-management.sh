@@ -9,11 +9,36 @@ get_lifespan_by_country() {
     local country_code=$1
     awk -F, -v code="$country_code" '$4 == code {print $7}' $LIFE_EXPECTANCY_STORE
 }
-# Function to get patient data
+# Function to get patient data with labels
 get_patient() {
     local email=$1
-    grep "^$email," "$USER_STORE" | cut -d',' -f5-
+    local user_info
+    user_info=$(grep "^$email," "$USER_STORE" | cut -d',' -f1-13)
+
+    # Debugging output to check the extracted user_info
+    echo "DEBUG: Extracted user_info: '$user_info'"
+
+    if [[ -n "$user_info" ]]; then
+        IFS=',' read -r email uuid password role first_name last_name dob has_hiv diagnosis_date on_art art_start_date country_iso survival_rate <<< "$user_info"
+
+        echo "Email: $email"
+        echo "UUID: $uuid"
+        echo "Role: $role"
+        echo "First Name: $first_name"
+        echo "Last Name: $last_name"
+        echo "Date of Birth: $dob"
+        echo "Has HIV: $has_hiv"
+        echo "Diagnosis Date: $diagnosis_date"
+        echo "On ART: $on_art"
+        echo "ART Start Date: $art_start_date"
+        echo "Country ISO: $country_iso"
+        echo "Survival Rate: $survival_rate"
+    else
+        echo "No data found for email: $email"
+    fi
 }
+
+
 # Function to create user-store.txt if it doesn't exist
 create_user_store() {
     if [ ! -f "$USER_STORE" ]; then
@@ -177,7 +202,7 @@ view_all_users() {
     printf "%-30s %-15s %-20s %-20s %-15s\n" "Email" "Role" "First Name" "Last Name" "Country ISO"
 
     # Read each line from the user store
-    while IFS=',' read -r email uuid password role first_name last_name dob has_hiv diagnosis_date on_art art_start_date country_iso; do
+    while IFS=',' read -r email uuid password role first_name last_name dob has_hiv diagnosis_date on_art art_start_date country_iso survival_rate; do
         # If the email is empty, skip the line
         if [[ -z "$email" ]]; then
             continue
@@ -259,8 +284,24 @@ aggregate_data() {
 
 # Function to download all users info
 download_all_users() {
-    cp "$USER_STORE" "./all_users_info.csv"
-    echo "All users' information has been downloaded to all_users_info.csv"
+    # Define the output CSV file
+    output_file="./src/data/all_users_info.csv"
+
+    # Add the header row to the CSV file
+    echo "Email,Role,First Name,Last Name,Country ISO" > "$output_file"
+
+    # Read each line from the user store and append the selected fields to the CSV file
+    while IFS=',' read -r email uuid password role first_name last_name dob has_hiv diagnosis_date on_art art_start_date country_iso survival_rate; do
+        # If the email is empty, skip the line
+        if [[ -z "$email" ]]; then
+            continue
+        fi
+
+        # Append the selected fields to the CSV file
+        echo "$email,$role,$first_name,$last_name,$country_iso" >> "$output_file"
+    done < "$USER_STORE"
+
+    echo "All users' information has been downloaded to $output_file"
 }
 
 # Function to calculate mean
@@ -335,6 +376,27 @@ export_analytics() {
     echo "Analytics report has been generated at $output_file"
 }
 
+# Function to get and display life prognosis (survival rate) for a patient
+get_life_prognosis() {
+    local email=$1
+
+    # Fetch patient data from USER_STORE
+    local patient_info=$(get_patient "$email")
+
+    if [[ -z "$patient_info" ]]; then
+        echo "No data found for email: $email"
+        return
+    fi
+
+    # Extract relevant details from patient_info
+    local survival_rate=$(echo "$patient_info" | grep "Survival Rate:" | cut -d':' -f2 | xargs)
+
+    if [[ -z "$survival_rate" ]]; then
+        echo "Survival rate not available for email: $email"
+    else
+        echo "Survival Rate for $email: $survival_rate years"
+    fi
+}
 
 case "$1" in
     create_store)
@@ -376,14 +438,14 @@ case "$1" in
     download_all_users)
         download_all_users
         ;;
-    seed_user_store)
-        seed_user_store
-        ;;
     export_analytics)
         export_analytics
         ;;
+    get_life_prognosis)
+        get_life_prognosis "$2"
+        ;;
     *)
-        echo "Usage: $0 {create_store|initiate_registration|complete_registration|check_pre_registration|display_patient_info|update_patient_data|get_lifespan|check_login|get_patient|compute_survival_rate|view_all_users|aggregate_data|download_all_users|seed_user_store|export_analytics}"
+        echo "Usage: $0 {create_store|initiate_registration|complete_registration|check_pre_registration|display_patient_info|update_patient_data|get_lifespan|check_login|get_patient|compute_survival_rate|view_all_users|aggregate_data|download_all_users|export_analytics|get_life_prognosis}"
         exit 1
         ;;
 esac

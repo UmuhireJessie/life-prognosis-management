@@ -1,4 +1,3 @@
 admin@example.com,d4c510d5-71aa-4745-ad0b-8756dfaf812f,JAvlGPq9JyTdtvBO6x2llnRI1+gxwIyPqCKAn3THIKk=,Admin,,,,,,,,
-bot@gmail.com,774251cf-b596-483d-869f-ce7ce2d150bc,42Bfc0AwR37nFy41zLXpzDJ2Rphpafq/4Um+L+O1JbU=,Patient,Botuko,Masale,1970-05-05,true,2003-05-05,true,2010-05-05,SA
-shishi@gmail.com,fe522c04-1e61-4dd5-993a-21280a6f6faf,e+c/o+0aZJrmpr8LKxoFp69489VC2/E/cGeYVyOXsJY=,Patient,Sheila,Wafula,1998-08-05,true,2005-02-02,true,2012-02-02,URU
-jessie@gmail.com,78CE74B3-6D88-4713-A448-AC9B25DD3B69,VjJChoDvQNaUWrpaLa46EP97+HatCvE9UE9treJvfqU=,Patient,Jessie,Umuhire,2002-02-02,true,2005-03-02,true,2007-09-09,SU,.21
+azza@gmail.com,D02458B9-6EC3-41E1-94F9-0788E7E40721,SdCT1iq8QwotOR6Iy6u9KGhQhjtov1Y4Sn2mHSPh1x0=,Patient,Azza,Osman,1997-09-09,true,2020-02-02,false,2021-01-01,SU,.21
+jessie@gmail.com,E44684C9-E401-4CC2-81B6-9DF83D4D8D6D,VjJChoDvQNaUWrpaLa46EP97+HatCvE9UE9treJvfqU=,Patient,Jessie,Umuhire,2002-02-02,true,2009-09-09,true,2010-09-09,RW,.21

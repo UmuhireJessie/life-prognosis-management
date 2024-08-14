@@ -13,6 +13,7 @@ public class Admin extends User {
     @Override
     public void displayOptions() {
         Scanner scanner = new Scanner(System.in);
+        System.out.println("\n============================================================================");
         System.out.println("\nAdmin Options:");
         System.out.println("\t1. Initiate Patient Registration");
         System.out.println("\t2. View All Users");
@@ -42,26 +43,28 @@ public class Admin extends User {
                 exportAnalytics();
                 break;
             case 6:
-                System.out.println("Logging out...");
+                System.out.println("--> Logging out...");
                 break;
             default:
-                System.out.println("Invalid option.");
+                System.out.println("--> Invalid option.");
         }
     }
 
     private void registerPatient(Scanner scanner) {
         try {
+            System.out.println("\n============================================================================");
             System.out.print("Enter Patient Email: ");
             String email = scanner.nextLine().trim();
             while (!Helper.isValidEmail(email)) {
-                System.out.println("Invalid email format. Please enter a valid email: ");
+                System.out.println("--> Invalid email format. Please enter a valid email: ");
                 email = scanner.nextLine().trim();
             }
 
             // Call bash script to register the patient
             String result = Main.callBashFunction("initiate_registration", email);
-            System.out.println(result);
+            System.out.println("--> " + result);
 
+            // Display options again
             displayOptions();
             
         } catch (Exception e) {
@@ -73,7 +76,11 @@ public class Admin extends User {
         try {
             // Call bash script to view all users
             String result = Main.callBashFunction("view_all_users");
+            System.out.println("\n--> Here is the List of All Users:\n");
             System.out.println(result);
+
+            // Display options again
+            displayOptions();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -83,7 +90,10 @@ public class Admin extends User {
         try {
             // Call bash script to download user info
             String result = Main.callBashFunction("download_all_users");
-            System.out.println(result);
+            System.out.println("\n--> " + result);
+
+            // Display options again
+            displayOptions();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -93,7 +103,10 @@ public class Admin extends User {
         try {
             // Call bash script to aggregate data
             String result = Main.callBashFunction("aggregate_data");
-            System.out.println(result);
+            System.out.println("\n--> " + result);
+
+            // Display options again
+            displayOptions();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -103,7 +116,10 @@ public class Admin extends User {
         try {
             // Call bash script to export analytics
             String result = Main.callBashFunction("export_analytics");
-            System.out.println(result);
+            System.out.println("\n--> " + result);
+
+            // Display options again
+            displayOptions();
         } catch (Exception e) {
             e.printStackTrace();
         }

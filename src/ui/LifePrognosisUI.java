@@ -16,7 +16,7 @@ public class LifePrognosisUI {
         String uuid = args[1];
 
         System.out.println("\nWelcome to Life Prognosis Management");
-        System.out.println("Please enter patient details:");
+        System.out.println("Please enter patient details:\n");
         
         System.out.println("UUID: " + uuid);
         System.out.println("Email: " + email);
@@ -93,6 +93,7 @@ public class LifePrognosisUI {
         double survivalRate = patient.computeSurvivalRate();
         System.out.println("\nSurvival Rate: " + survivalRate + " years");
 
-        scanner.close();
+        // Display options for the patient
+        patient.displayOptions();
     }
 }
