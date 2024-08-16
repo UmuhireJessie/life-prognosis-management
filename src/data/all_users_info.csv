@@ -1,4 +1,6 @@
 Email,Role,First Name,Last Name,Country ISO
 admin@example.com,Admin,,,
 azza@gmail.com,Patient,Azza,Osman,SU
-jessie@gmail.com,Patient,Jessie,Umuhire,RW
+jessie@gmail.com,Patient,Jessica,Umuhire,RW
+maish@gmail.com,Patient,Maisha,Nelly,SA
+brian@gmail.com,Patient,,,

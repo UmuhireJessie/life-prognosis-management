@@ -1,6 +1,6 @@
 Survival Rate Analytics Report
 ==============================
-Mean: .21
-Median: .21
+Mean: 
+Median: 
 Mode: .21
-Standard Deviation: 0
+Standard Deviation: 
